@@ -1,6 +1,7 @@
 package com.example.myweatherdemo;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,6 +10,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,12 +21,14 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.myweatherdemo.util.NetUtil;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -39,11 +45,23 @@ public class MainActivity extends AppCompatActivity {
     private String[] mCities;
     private FusedLocationProviderClient fusedLocationClient;
 
+    private Button searchButton;
+
+    private EditText searchCityText;
+
     private ImageView weatherPicture;
 
     private TextView location, nowTempreture, weather, highAndLowTempreture;
 
-    private TextView humidityTextview, pressureTextview, windDerectionTextview, windTextview, sunRiseTextview, sunSetTextview, visibilityTextview, airQuality;
+    private TextView humidityTextview, pressureTextview, windDerectionTextview, windTextview, sunRiseTextview
+            , sunSetTextview, visibilityTextview, airQuality, uvRays;
+
+    private TextView alarmTypeAndLevel, alarmContent;
+
+    private CardView alarmCardText, airQualityCardView;
+
+
+    private WeatherBean weatherBean;
 
     private Handler mHandler = new Handler(Looper.myLooper()) {
         @Override
@@ -67,14 +85,24 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    //更新所有天气信息
     private void upDateUiOfWeather(WeatherBean weatherBean) {
         if (weatherBean == null) {
             return;
         }
 
+        if (weatherBean == null || weatherBean.getDaysWeather() == null || weatherBean.getDaysWeather().isEmpty()) {
+            Toast.makeText(this, "您输入的城市有误", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        this.weatherBean = weatherBean;
+
         List<DayWeatherBean> daysWeather = weatherBean.getDaysWeather();
         DayWeatherBean todayWeather = daysWeather.get(0);
-
+        List<OtherTipsBean> otherTipsBeans = todayWeather.getmTipsBeans();
+        OtherTipsBean otherTipsBean = otherTipsBeans.get(0);
+        AlarmDetailsBean alarmDetails = todayWeather.getAlarm();
 
         location.setText(weatherBean.getCity());
         nowTempreture.setText(todayWeather.getTem() + "℃");
@@ -87,8 +115,11 @@ public class MainActivity extends AppCompatActivity {
         sunRiseTextview.setText(todayWeather.getSunrise());
         sunSetTextview.setText(todayWeather.getSunset());
         visibilityTextview.setText(todayWeather.getVisibility());
-        airQuality.setText(todayWeather.getAir_level());
+        airQuality.setText(" 空气质量 " + todayWeather.getAir_level());
+        uvRays.setText(otherTipsBean.getLevel());
 
+
+        alarmMessageSet(alarmDetails);
         WeatherIconSet(todayWeather.getWea());
 
         if (todayWeather == null) {
@@ -96,6 +127,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //更新预警
+    private void alarmMessageSet(AlarmDetailsBean alarmDetails) {
+        if (alarmDetails.getAlarm_type().equals("") && alarmDetails.getAlarm_content().equals("")) {
+            alarmTypeAndLevel.setText("今日无警报");
+            alarmContent.setText("");
+        } else {
+            alarmTypeAndLevel.setText(alarmDetails.getAlarm_type() + alarmDetails.getAlarm_level() + "预警");
+            alarmContent.setText(alarmDetails.getAlarm_content());
+        }
+    }
+
+    //更新天气小图标
     private void WeatherIconSet(String weather) {
         switch(weather) {
             case "晴":
@@ -122,22 +165,44 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
+        getSupportActionBar().hide();
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
+        // 确保布局文件正确加载
+        mSpinner = findViewById(R.id.city_item);
+
+
+
+        if (mSpinner != null) {
+            mCities = getResources().getStringArray(R.array.cities);
+            mStringAdapter = new ArrayAdapter<>(this, R.layout.sp_item, mCities);
+            mSpinner.setAdapter(mStringAdapter);
+            mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedCity = parent.getItemAtPosition(position).toString();
+                    fetchWeatherDataForCity(selectedCity);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    // 处理无选择的情况
+                }
+            });
+        } else {
+            Log.e("MainActivity", "Spinner not found in layout");
+        }
+
+        // 初始化其他视图
         location = findViewById(R.id.location);
         nowTempreture = findViewById(R.id.temperature);
         weather = findViewById(R.id.weather_text);
         highAndLowTempreture = findViewById(R.id.high_and_low_tempreture_text);
-
-
-
         humidityTextview = findViewById(R.id.humidity_textview);
         pressureTextview = findViewById(R.id.pressure_textview);
         windDerectionTextview = findViewById(R.id.windDerection_textview);
@@ -147,18 +212,68 @@ public class MainActivity extends AppCompatActivity {
         sunSetTextview = findViewById(R.id.sunset_textview);
         airQuality = findViewById(R.id.airqulity_textview);
         weatherPicture = findViewById(R.id.weather_picture);
+        uvRays = findViewById(R.id.rays_textview);
+        alarmCardText = findViewById(R.id.alarm_card_text);
+        alarmContent = findViewById(R.id.alarm_content_text);
+        alarmTypeAndLevel = findViewById(R.id.alarm_typeandlevel_text);
+        airQualityCardView = findViewById(R.id.airqulity_cardview);
 
-        // 设置背景
+
+        searchButton = findViewById(R.id.search_button_title);
+        searchCityText = findViewById(R.id.search_text_textview);
+
         View rootView = findViewById(android.R.id.content);
         rootView.setBackgroundResource(R.drawable.sunny_background);
-        Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
+
+        // 其他初始化代码
         initView();
 
+        // 预警详情点击事件
+        alarmCardText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AlarmMessageActivity.class);
+                String alarmTitle = alarmTypeAndLevel.getText().toString();
+                String alarmDetails = alarmContent.getText().toString();
+                intent.putExtra("alarm_title", alarmTitle);
+                intent.putExtra("alarm_details", alarmDetails);
+                startActivity(intent);
+            }
+        });
 
+        //空气质量点击详情
+        airQualityCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<DayWeatherBean> daysWeather = weatherBean.getDaysWeather();
+                DayWeatherBean todayWeather = daysWeather.get(0);
+                MyBottomSheetDialogFragment bottomSheet = MyBottomSheetDialogFragment.newInstance("空气质量 " + todayWeather.getAir_level() + " " + todayWeather.getAir(), "  " + todayWeather.getAir_tips());
+                bottomSheet.show(getSupportFragmentManager(), "BottomSheetDialog");
+            }
+        });
+
+        searchCityText.setVisibility(View.GONE);
+
+        // 查询按钮点击事件
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            private boolean isEditTextVisible = false;
+            @Override
+            public void onClick(View v) {
+                if (!isEditTextVisible) {
+                    // 第一次点击时显示 EditText
+                    searchCityText.setVisibility(View.VISIBLE);
+                    isEditTextVisible = true;
+                } else {
+                    fetchWeatherDataForCity(String.valueOf(searchCityText.getText()));
+                }
+            }
+        });
     }
 
+
+
     private void initView() {
-        mSpinner = findViewById(R.id.city_item);
+//        mSpinner = findViewById(R.id.city_item);
         mCities = getResources().getStringArray(R.array.cities);
         mStringAdapter = new ArrayAdapter<>(this, R.layout.sp_item, mCities);
         mSpinner.setAdapter(mStringAdapter);
@@ -166,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedCity = parent.getItemAtPosition(position).toString();
-
                 fetchWeatherDataForCity(selectedCity);
             }
 
@@ -176,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void fetchWeatherDataForCity(String cityName) {
         new Thread(new Runnable() {
             @Override
@@ -193,60 +308,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
-        //        String apiKey = "af81b5f7de21f481fa56e644e2395bcd";
-//        String url = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + apiKey + "&units=metric";
-//
-//        OkHttpClient client = new OkHttpClient();
-//        Request request = new Request.Builder().url(url).build();
-//
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-//                e.printStackTrace();
-//                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to fetch weather data", Toast.LENGTH_SHORT).show());
-//            }
-//
-//            @Override
-//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-//                if (response.isSuccessful()) {
-//                    String responseData = response.body().string();
-//                    try {
-//                        JSONObject json = new JSONObject(responseData);
-//                        parseWeatherData(json);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        });
     }
-
-//    @SuppressLint("SetTextI18n")
-//    private void parseWeatherData(JSONObject json) throws JSONException {
-//        JSONObject main = json.getJSONObject("main");
-//        JSONObject wind = json.getJSONObject("wind");
-//        JSONObject clouds = json.getJSONObject("clouds");
-//
-//        int humidity = main.getInt("humidity");
-//        double pressure = main.getDouble("pressure");
-//        double windSpeed = wind.getDouble("speed");
-//        int cloudCover = clouds.getInt("all");
-//
-//        // 直接从根 JSON 对象中获取 visibility
-//        int visibility = json.getInt("visibility");
-//
-//        // 如果需要 UV 指数，使用 One Call API 获取
-//        double uvi = 0; // 设置默认值
-//
-//
-//        runOnUiThread(() -> {
-//            humidityTextview.setText(humidity + "％");
-//            pressureTextview.setText(pressure + " hPa");
-//            windTextview.setText(windSpeed + " m/s");
-//            visibilityTextview.setText(visibility + " m");
-//            cloudCoverTextview.setText(cloudCover + "％");
-//        });
-//    }
-
 
 }

@@ -1,4 +1,5 @@
 package com.example.myweatherdemo;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Arrays;
@@ -88,11 +89,28 @@ public class DayWeatherBean {
     @SerializedName("sunset")
     private String sunset;
 
+    public String getAir() {
+        return air;
+    }
+
+    public void setAir(String air) {
+        this.air = air;
+    }
+
+    @SerializedName("air")
+    private String air;
+
     @SerializedName("air_level")
     private String air_level;
 
+    @SerializedName("air_tips")
+    private String air_tips;
+
     @SerializedName("index")
     private List<OtherTipsBean> mTipsBeans;
+
+    @SerializedName("alarm")
+    private AlarmDetailsBean alarm;
 
     public String getDay() {
         return day;
@@ -120,6 +138,14 @@ public class DayWeatherBean {
 
     public void setTem(String tem) {
         this.tem = tem;
+    }
+
+    public String getAir_tips() {
+        return air_tips;
+    }
+
+    public void setAir_tips(String air_tips) {
+        this.air_tips = air_tips;
     }
 
     public String getTem2() {
@@ -238,6 +264,14 @@ public class DayWeatherBean {
         this.air_level = air_level;
     }
 
+    public AlarmDetailsBean getAlarm() {
+        return alarm;
+    }
+
+    public void setAlarm(AlarmDetailsBean alarm) {
+        this.alarm = alarm;
+    }
+
     @Override
     public String toString() {
         return "DayWeatherBean{" +
@@ -257,8 +291,11 @@ public class DayWeatherBean {
                 ", win_meter='" + win_meter + '\'' +
                 ", sunrise='" + sunrise + '\'' +
                 ", sunset='" + sunset + '\'' +
+                ", air='" + air + '\'' +
                 ", air_level='" + air_level + '\'' +
+                ", air_tips='" + air_tips + '\'' +
                 ", mTipsBeans=" + mTipsBeans +
+                ", alarm=" + alarm +
                 '}';
     }
 }
