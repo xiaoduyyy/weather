@@ -63,6 +63,13 @@ public class MainActivity extends AppCompatActivity {
 
     private WeatherBean weatherBean;
 
+    private TextView todayWeatherTextview, todayTemperatureTextview, tomorrowWeatherTextview
+            , tomorrowTemperatureTextview, aftertomorrowWeatherTextview, aftertomorrowTemperatureTextview, aftertomorrowNameTextview;
+
+    private ImageView todayWeatherImageview, tomorrowWeatherImageview, aftertomorrowWeatherImageview;
+
+    private Button checkWeatherForSevenDaysButtpn;
+
     private Handler mHandler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -75,12 +82,6 @@ public class MainActivity extends AppCompatActivity {
                 WeatherBean weatherBean = gson.fromJson(weather, WeatherBean.class);
                 Log.d("fan", "-------------解析后的数据----------" + weatherBean.toString());
                 upDateUiOfWeather(weatherBean);
-//                try {
-//                    JSONObject json = new JSONObject(weather);
-//                    parseWeatherData(json); // 解析并更新UI
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
             }
         }
     };
@@ -118,9 +119,24 @@ public class MainActivity extends AppCompatActivity {
         airQuality.setText(" 空气质量 " + todayWeather.getAir_level());
         uvRays.setText(otherTipsBean.getLevel());
 
-
         alarmMessageSet(alarmDetails);
-        WeatherIconSet(todayWeather.getWea());
+        WeatherIconSet(weatherPicture, todayWeather.getWea());
+
+
+        todayWeatherTextview.setText(todayWeather.getWea());
+        WeatherIconSet(todayWeatherImageview, todayWeather.getWea());
+        todayTemperatureTextview.setText(todayWeather.getTem2() + "°" + "~" + todayWeather.getTem1() + "°");
+
+        DayWeatherBean tomorrowWeatherBean = daysWeather.get(1);
+        tomorrowWeatherTextview.setText(tomorrowWeatherBean.getWea());
+        WeatherIconSet(tomorrowWeatherImageview, tomorrowWeatherBean.getWea());
+        tomorrowTemperatureTextview.setText(tomorrowWeatherBean.getTem2() + "°" + "~" + tomorrowWeatherBean.getTem1() + "°");
+
+        DayWeatherBean afterTomorrowWeatherBean = daysWeather.get(2);
+        aftertomorrowNameTextview.setText(afterTomorrowWeatherBean.getDay());
+        aftertomorrowWeatherTextview.setText(afterTomorrowWeatherBean.getWea());
+        WeatherIconSet(aftertomorrowWeatherImageview, afterTomorrowWeatherBean.getWea());
+        aftertomorrowTemperatureTextview.setText(afterTomorrowWeatherBean.getTem2() + "°" + "~" + afterTomorrowWeatherBean.getTem1() + "°");
 
         if (todayWeather == null) {
             return;
@@ -139,24 +155,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //更新天气小图标
-    private void WeatherIconSet(String weather) {
+    private void WeatherIconSet(ImageView imageView, String weather) {
         switch(weather) {
             case "晴":
-                weatherPicture.setImageResource(R.drawable.weather_qing);
+                imageView.setImageResource(R.drawable.weather_qing);
                 break;
             case "阴":
-                weatherPicture.setImageResource(R.drawable.weather_yin);
+                imageView.setImageResource(R.drawable.weather_yin);
                 break;
             case "雨":
-                weatherPicture.setImageResource(R.drawable.xiaoyu);
+                imageView.setImageResource(R.drawable.xiaoyu);
                 break;
             case "雪":
-                weatherPicture.setImageResource(R.drawable.xiaoxue);
+                imageView.setImageResource(R.drawable.xiaoxue);
                 break;
             case "多云":
-                weatherPicture.setImageResource(R.drawable.duoyun);
+                imageView.setImageResource(R.drawable.duoyun);
+                break;
+            case "雾":
+                imageView.setImageResource(R.drawable.weather_wu);
                 break;
             default:
+                imageView.setImageResource(R.drawable.weather_error);
                 break;
         }
     }
@@ -222,6 +242,22 @@ public class MainActivity extends AppCompatActivity {
         searchButton = findViewById(R.id.search_button_title);
         searchCityText = findViewById(R.id.search_text_textview);
 
+
+        //天气信息
+        todayWeatherTextview = findViewById(R.id.today_weather_textview);
+        todayWeatherImageview = findViewById(R.id.today_weather_imageview);
+        todayTemperatureTextview = findViewById(R.id.today_temperature_textview);
+        tomorrowWeatherTextview = findViewById(R.id.tomorrow_weather_textview);
+        tomorrowWeatherImageview = findViewById(R.id.tomorrow_weather_imageview);
+        tomorrowTemperatureTextview = findViewById(R.id.tomorrow_temperature_textview);
+        aftertomorrowNameTextview = findViewById(R.id.aftertomorrow_name_textview);
+        aftertomorrowWeatherTextview = findViewById(R.id.aftertomorrow_weather_textview);
+        aftertomorrowWeatherImageview = findViewById(R.id.aftertomorrow_weather_imageview);
+        aftertomorrowTemperatureTextview = findViewById(R.id.aftertomorrow_temperature_textview);
+
+        checkWeatherForSevenDaysButtpn = (Button) findViewById(R.id.weather_report_details_button);
+
+
         View rootView = findViewById(android.R.id.content);
         rootView.setBackgroundResource(R.drawable.sunny_background);
 
@@ -268,6 +304,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+        //查看近七日天气
+        checkWeatherForSevenDaysButtpn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
     }
 
 
