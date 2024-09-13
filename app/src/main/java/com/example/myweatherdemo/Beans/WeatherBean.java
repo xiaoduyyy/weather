@@ -1,13 +1,11 @@
-package com.example.myweatherdemo;
+package com.example.myweatherdemo.Beans;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
-import kotlin.jvm.internal.SerializedIr;
-
-public class WeatherBean {
+public class WeatherBean implements Serializable {
 
     @SerializedName("cityid")
     private String cityid;

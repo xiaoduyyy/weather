@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 按下状态 -->
+    <item android:state_pressed="true">
+        <set xmlns:android="http://schemas.android.com/apk/res/android">
+            <!-- 缩小动画 -->
+            <objectAnimator
+                android:propertyName="scaleX"
+                android:valueFrom="1.0"
+                android:valueTo="0.95"
+                android:duration="200"/>
+            <objectAnimator
+                android:propertyName="scaleY"
+                android:valueFrom="1.0"
+                android:valueTo="0.95"
+                android:duration="200"/>
+            <!-- 变白动画 -->
+            <objectAnimator
+                android:propertyName="backgroundColor"
+                android:valueFrom="#65475164"
+            android:valueTo="#F0F0F0"
+            android:duration="200"/>
+        </set>
+    </item>
+    <!-- 默认状态 -->
+    <item>
+        <set xmlns:android="http://schemas.android.com/apk/res/android">
+            <!-- 恢复缩小动画 -->
+            <objectAnimator
+                android:propertyName="scaleX"
+                android:valueFrom="0.95"
+                android:valueTo="1.0"
+                android:duration="200"/>
+            <objectAnimator
+                android:propertyName="scaleY"
+                android:valueFrom="0.95"
+                android:valueTo="1.0"
+                android:duration="200"/>
+            <!-- 恢复颜色动画 -->
+            <objectAnimator
+                android:propertyName="backgroundColor"
+                android:valueFrom="#65475164"
+            android:valueTo="#FFFAFA"
+            android:duration="200"/>
+        </set>
+    </item>
+</selector>

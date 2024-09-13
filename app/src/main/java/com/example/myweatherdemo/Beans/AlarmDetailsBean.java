@@ -1,8 +1,10 @@
-package com.example.myweatherdemo;
+package com.example.myweatherdemo.Beans;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AlarmDetailsBean {
+import java.io.Serializable;
+
+public class AlarmDetailsBean implements Serializable {
 
     @SerializedName("alarm_type")
     private String alarm_type;

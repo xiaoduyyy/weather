@@ -1,4 +1,4 @@
-package com.example.myweatherdemo;
+package com.example.myweatherdemo.Others;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.myweatherdemo.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {

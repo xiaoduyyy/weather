@@ -1,44 +1,41 @@
-package com.example.myweatherdemo;
+package com.example.myweatherdemo.Activitys;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class AlarmMessageActivity extends AppCompatActivity {
+import com.example.myweatherdemo.Beans.WeatherBean;
+import com.example.myweatherdemo.Adapters.MyWeatherAdapter;
+import com.example.myweatherdemo.R;
+
+public class SevenDaysWeatherActivity extends AppCompatActivity {
+
 
     private View titleBarInclude;
 
+
     private Button backButton;
 
-    private TextView alarmTitleText, alarmDetailsText;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_seven_days_weather);
         getSupportActionBar().hide();
-        setContentView(R.layout.activity_alarm_message);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        Intent intent = getIntent();
-
-        alarmTitleText = findViewById(R.id.alarm_title_textview);
-        alarmDetailsText = findViewById(R.id.alarm_details_textview);
-
-        alarmTitleText.setText(intent.getStringExtra("alarm_title"));
-        alarmDetailsText.setText(intent.getStringExtra("alarm_details"));
 
         //返回
         titleBarInclude = findViewById(R.id.title_bar_include);
@@ -50,5 +47,16 @@ public class AlarmMessageActivity extends AppCompatActivity {
             }
         });
 
+        mRecyclerView = findViewById(R.id.recyclerview);
+
+
+        Intent intent = getIntent();
+        WeatherBean weatherBean = (WeatherBean) intent.getSerializableExtra("weatherBean");
+        MyWeatherAdapter myWeatherAdapter = new MyWeatherAdapter(weatherBean.getDaysWeather());
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(myWeatherAdapter);
     }
 }

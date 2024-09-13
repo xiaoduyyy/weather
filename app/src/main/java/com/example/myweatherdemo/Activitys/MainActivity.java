@@ -1,6 +1,5 @@
-package com.example.myweatherdemo;
+package com.example.myweatherdemo.Activitys;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,12 +11,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
@@ -26,15 +23,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.myweatherdemo.util.NetUtil;
+import com.example.myweatherdemo.Beans.AlarmDetailsBean;
+import com.example.myweatherdemo.Beans.DayWeatherBean;
+import com.example.myweatherdemo.Beans.OtherTipsBean;
+import com.example.myweatherdemo.Beans.WeatherBean;
+import com.example.myweatherdemo.Others.MyBottomSheetDialogFragment;
+import com.example.myweatherdemo.Others.NetUtil;
+import com.example.myweatherdemo.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -64,11 +64,12 @@ public class MainActivity extends AppCompatActivity {
     private WeatherBean weatherBean;
 
     private TextView todayWeatherTextview, todayTemperatureTextview, tomorrowWeatherTextview
-            , tomorrowTemperatureTextview, aftertomorrowWeatherTextview, aftertomorrowTemperatureTextview, aftertomorrowNameTextview;
+            , tomorrowTemperatureTextview, aftertomorrowWeatherTextview, aftertomorrowTemperatureTextview;
 
     private ImageView todayWeatherImageview, tomorrowWeatherImageview, aftertomorrowWeatherImageview;
 
-    private Button checkWeatherForSevenDaysButtpn;
+    private Button checkWeatherForSevenDaysButton;
+
 
     private Handler mHandler = new Handler(Looper.myLooper()) {
         @Override
@@ -133,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         tomorrowTemperatureTextview.setText(tomorrowWeatherBean.getTem2() + "°" + "~" + tomorrowWeatherBean.getTem1() + "°");
 
         DayWeatherBean afterTomorrowWeatherBean = daysWeather.get(2);
-        aftertomorrowNameTextview.setText(afterTomorrowWeatherBean.getDay());
         aftertomorrowWeatherTextview.setText(afterTomorrowWeatherBean.getWea());
         WeatherIconSet(aftertomorrowWeatherImageview, afterTomorrowWeatherBean.getWea());
         aftertomorrowTemperatureTextview.setText(afterTomorrowWeatherBean.getTem2() + "°" + "~" + afterTomorrowWeatherBean.getTem1() + "°");
@@ -193,8 +193,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // 确保布局文件正确加载
-        mSpinner = findViewById(R.id.city_item);
+//        // 确保布局文件正确加载
+//        mSpinner = findViewById(R.id.city_item);
 
 
 
@@ -250,19 +250,18 @@ public class MainActivity extends AppCompatActivity {
         tomorrowWeatherTextview = findViewById(R.id.tomorrow_weather_textview);
         tomorrowWeatherImageview = findViewById(R.id.tomorrow_weather_imageview);
         tomorrowTemperatureTextview = findViewById(R.id.tomorrow_temperature_textview);
-        aftertomorrowNameTextview = findViewById(R.id.aftertomorrow_name_textview);
         aftertomorrowWeatherTextview = findViewById(R.id.aftertomorrow_weather_textview);
         aftertomorrowWeatherImageview = findViewById(R.id.aftertomorrow_weather_imageview);
         aftertomorrowTemperatureTextview = findViewById(R.id.aftertomorrow_temperature_textview);
 
-        checkWeatherForSevenDaysButtpn = (Button) findViewById(R.id.weather_report_details_button);
+        checkWeatherForSevenDaysButton = (Button) findViewById(R.id.weather_report_details_button);
 
 
         View rootView = findViewById(android.R.id.content);
         rootView.setBackgroundResource(R.drawable.sunny_background);
 
-        // 其他初始化代码
-        initView();
+//        // 其他初始化代码
+//        initView();
 
         // 预警详情点击事件
         alarmCardText.setOnClickListener(new View.OnClickListener() {
@@ -307,16 +306,20 @@ public class MainActivity extends AppCompatActivity {
 
 
         //查看近七日天气
-        checkWeatherForSevenDaysButtpn.setOnClickListener(new View.OnClickListener() {
+        checkWeatherForSevenDaysButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                List<DayWeatherBean> dayWeatherBeans =  weatherBean.getDaysWeather();
+                Intent intent = new Intent(MainActivity.this, SevenDaysWeatherActivity.class);
+                intent.putExtra("weatherBean", (Serializable) weatherBean);
+                startActivity(intent);
             }
         });
 
+
+
+
     }
-
-
 
     private void initView() {
 //        mSpinner = findViewById(R.id.city_item);

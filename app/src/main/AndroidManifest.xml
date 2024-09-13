@@ -17,13 +17,16 @@
         android:theme="@style/Theme.AppCompat"
         tools:targetApi="31">
         <activity
-            android:name=".SevenDaysWeatherActivity"
+            android:name=".Activitys.SearchForCitysActivity"
             android:exported="false" />
         <activity
-            android:name=".AlarmMessageActivity"
+            android:name=".Activitys.SevenDaysWeatherActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Activitys.AlarmMessageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activitys.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

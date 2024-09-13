@@ -1,7 +1,8 @@
-package com.example.myweatherdemo;
+package com.example.myweatherdemo.Beans;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,7 +40,9 @@ import java.util.List;
 //        （预警信息来源：国家预警信息发布中心）" #预警详情描述
 //        },
 
-public class DayWeatherBean {
+public class DayWeatherBean implements Serializable {
+
+
 
     @SerializedName("day")
     private String day;
