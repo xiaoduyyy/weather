@@ -12,11 +12,6 @@ import com.example.myweatherdemo.R;
 public class MyWeatherCardAdapter extends RecyclerView.Adapter<MyWeatherCardAdapter.MyViewHolder> {
 
 
-    public MyWeatherCardAdapter() {
-
-    }
-
-
     @NonNull
     @Override
     public MyWeatherCardAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
