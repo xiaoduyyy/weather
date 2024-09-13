@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.myweatherdemo.Beans.WeatherBean;
 import com.example.myweatherdemo.R;
 
 
@@ -16,10 +17,14 @@ public class MainActivityFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "city";
 
+    private WeatherBean weatherBean;
+
     private String city;
 
 
-    public MainActivityFragment() {}
+    public MainActivityFragment() {
+
+    }
 
 
     public static MainActivityFragment newInstance(String param1, String param2) {
@@ -33,9 +38,7 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            city = getArguments().getString(ARG_PARAM1);
-        }
+
     }
 
     @Override
@@ -43,5 +46,6 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_main_activity, container, false);
+
     }
 }
