@@ -1,17 +1,14 @@
 package com.example.myweatherdemo.Activitys;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,9 +28,7 @@ import com.example.myweatherdemo.Beans.AlarmDetailsBean;
 import com.example.myweatherdemo.Beans.DayWeatherBean;
 import com.example.myweatherdemo.Beans.OtherTipsBean;
 import com.example.myweatherdemo.Beans.WeatherBean;
-import com.example.myweatherdemo.Fragments.BlankFragment;
 import com.example.myweatherdemo.Fragments.MainActivityFragment;
-import com.example.myweatherdemo.Others.MyBottomSheetDialogFragment;
 import com.example.myweatherdemo.Others.NetUtil;
 import com.example.myweatherdemo.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -41,7 +36,6 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
     private Button checkWeatherForSevenDaysButton;
 
 
-
+    List<WeatherBean> weatherBeanList;
+    ViewPagerAdapter myAdapter;
 
     private TabLayout tab_layout;
     private ViewPager2 main_viewpager;
@@ -95,10 +90,20 @@ public class MainActivity extends AppCompatActivity {
 
                 Gson gson = new Gson();
                 WeatherBean weatherBean = gson.fromJson(weather, WeatherBean.class);
+
+                if (weatherBean == null) {
+                    Log.e("fan", "解析后的 WeatherBean 为空");
+                    return; // 如果 weatherBean 为空，直接返回
+                }
+
                 Log.d("fan", "-------------解析后的数据----------" + weatherBean.toString());
+
+
+
                 upDateUiOfWeather(weatherBean);
             }
         }
+
     };
 
     //更新所有天气信息
@@ -329,15 +334,18 @@ public class MainActivity extends AppCompatActivity {
 
     //加载viewpager2
     private void initViewPager2(ViewPager2 viewPager2) {
-        ViewPagerAdapter myAdapter = new ViewPagerAdapter(getSupportFragmentManager(), getLifecycle());
-        List<Fragment> fragmentList = new ArrayList<>();
-        myAdapter.setFragmentList(fragmentList);
-        fragmentList.add(new MainActivityFragment());
-        fragmentList.add(new MainActivityFragment());
-        fragmentList.add(new MainActivityFragment());
-        fragmentList.add(new MainActivityFragment());
+        weatherBeanList = new ArrayList<>();
+
+
+        // 初始化适配器并传入 weatherBeanList
+        myAdapter = new ViewPagerAdapter(getSupportFragmentManager(), getLifecycle(), weatherBeanList);
         viewPager2.setAdapter(myAdapter);
+
+        fetchWeatherDataForCity("北京");
+        fetchWeatherDataForCity("西安");
+
     }
+
 
 //    private void initView() {
 ////        mSpinner = findViewById(R.id.city_item);
