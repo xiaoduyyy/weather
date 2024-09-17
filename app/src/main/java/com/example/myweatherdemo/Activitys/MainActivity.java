@@ -44,36 +44,18 @@ public class MainActivity extends AppCompatActivity {
 
     private AppCompatSpinner mSpinner;
     private ArrayAdapter<String> mStringAdapter;
-    private String[] mCities;
     private FusedLocationProviderClient fusedLocationClient;
+
+
+
+    private WeatherBean weatherBean;
 
     private Button searchButton;
 
     private EditText searchCityText;
 
-    private ImageView weatherPicture;
 
-    private TextView location, nowTempreture, weather, highAndLowTempreture;
-
-    private TextView humidityTextview, pressureTextview, windDerectionTextview, windTextview, sunRiseTextview
-            , sunSetTextview, visibilityTextview, airQuality, uvRays;
-
-    private TextView alarmTypeAndLevel, alarmContent;
-
-    private CardView alarmCardText, airQualityCardView;
-
-
-    private WeatherBean weatherBean;
-
-    private TextView todayWeatherTextview, todayTemperatureTextview, tomorrowWeatherTextview
-            , tomorrowTemperatureTextview, aftertomorrowWeatherTextview, aftertomorrowTemperatureTextview;
-
-    private ImageView todayWeatherImageview, tomorrowWeatherImageview, aftertomorrowWeatherImageview;
-
-    private Button checkWeatherForSevenDaysButton;
-
-
-    List<WeatherBean> weatherBeanList;
+    List<WeatherBean> weatherBeanList = new ArrayList<>();
     ViewPagerAdapter myAdapter;
 
     private TabLayout tab_layout;
@@ -96,9 +78,12 @@ public class MainActivity extends AppCompatActivity {
                     return; // 如果 weatherBean 为空，直接返回
                 }
 
+                weatherBeanList.add(weatherBean);
+
                 Log.d("fan", "-------------解析后的数据----------" + weatherBean.toString());
 
-
+                // 通知适配器数据发生变化
+                myAdapter.notifyDataSetChanged();
 
                 upDateUiOfWeather(weatherBean);
             }
@@ -119,86 +104,13 @@ public class MainActivity extends AppCompatActivity {
 
         this.weatherBean = weatherBean;
 
-        List<DayWeatherBean> daysWeather = weatherBean.getDaysWeather();
-        DayWeatherBean todayWeather = daysWeather.get(0);
-        List<OtherTipsBean> otherTipsBeans = todayWeather.getmTipsBeans();
-        OtherTipsBean otherTipsBean = otherTipsBeans.get(0);
-        AlarmDetailsBean alarmDetails = todayWeather.getAlarm();
-
-        location.setText(weatherBean.getCity());
-        nowTempreture.setText(todayWeather.getTem() + "℃");
-        weather.setText(todayWeather.getWea());
-        highAndLowTempreture.setText("最高" + todayWeather.getTem1() + "° 最低" + todayWeather.getTem2() +"°");
-        humidityTextview.setText(todayWeather.getHumidity());
-        pressureTextview.setText(todayWeather.getPressure());
-        windDerectionTextview.setText(todayWeather.getWin()[0]);
-        windTextview.setText(todayWeather.getWin_meter());
-        sunRiseTextview.setText(todayWeather.getSunrise());
-        sunSetTextview.setText(todayWeather.getSunset());
-        visibilityTextview.setText(todayWeather.getVisibility());
-        airQuality.setText(" 空气质量 " + todayWeather.getAir_level());
-        uvRays.setText(otherTipsBean.getLevel());
-
-        alarmMessageSet(alarmDetails);
-        WeatherIconSet(weatherPicture, todayWeather.getWea());
 
 
-        todayWeatherTextview.setText(todayWeather.getWea());
-        WeatherIconSet(todayWeatherImageview, todayWeather.getWea());
-        todayTemperatureTextview.setText(todayWeather.getTem2() + "°" + "~" + todayWeather.getTem1() + "°");
 
-        DayWeatherBean tomorrowWeatherBean = daysWeather.get(1);
-        tomorrowWeatherTextview.setText(tomorrowWeatherBean.getWea());
-        WeatherIconSet(tomorrowWeatherImageview, tomorrowWeatherBean.getWea());
-        tomorrowTemperatureTextview.setText(tomorrowWeatherBean.getTem2() + "°" + "~" + tomorrowWeatherBean.getTem1() + "°");
-
-        DayWeatherBean afterTomorrowWeatherBean = daysWeather.get(2);
-        aftertomorrowWeatherTextview.setText(afterTomorrowWeatherBean.getWea());
-        WeatherIconSet(aftertomorrowWeatherImageview, afterTomorrowWeatherBean.getWea());
-        aftertomorrowTemperatureTextview.setText(afterTomorrowWeatherBean.getTem2() + "°" + "~" + afterTomorrowWeatherBean.getTem1() + "°");
-
-        if (todayWeather == null) {
-            return;
-        }
     }
 
-    //更新预警
-    private void alarmMessageSet(AlarmDetailsBean alarmDetails) {
-        if (alarmDetails.getAlarm_type().equals("") && alarmDetails.getAlarm_content().equals("")) {
-            alarmTypeAndLevel.setText("今日无警报");
-            alarmContent.setText("");
-        } else {
-            alarmTypeAndLevel.setText(alarmDetails.getAlarm_type() + alarmDetails.getAlarm_level() + "预警");
-            alarmContent.setText(alarmDetails.getAlarm_content());
-        }
-    }
 
-    //更新天气小图标
-    private void WeatherIconSet(ImageView imageView, String weather) {
-        switch(weather) {
-            case "晴":
-                imageView.setImageResource(R.drawable.weather_qing);
-                break;
-            case "阴":
-                imageView.setImageResource(R.drawable.weather_yin);
-                break;
-            case "雨":
-                imageView.setImageResource(R.drawable.xiaoyu);
-                break;
-            case "雪":
-                imageView.setImageResource(R.drawable.xiaoxue);
-                break;
-            case "多云":
-                imageView.setImageResource(R.drawable.duoyun);
-                break;
-            case "雾":
-                imageView.setImageResource(R.drawable.weather_wu);
-                break;
-            default:
-                imageView.setImageResource(R.drawable.weather_error);
-                break;
-        }
-    }
+
 
 
     @Override
@@ -227,43 +139,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        // 初始化其他视图
-//        location = findViewById(R.id.location);
-//        nowTempreture = findViewById(R.id.temperature);
-//        weather = findViewById(R.id.weather_text);
-//        highAndLowTempreture = findViewById(R.id.high_and_low_tempreture_text);
-//        humidityTextview = findViewById(R.id.humidity_textview);
-//        pressureTextview = findViewById(R.id.pressure_textview);
-//        windDerectionTextview = findViewById(R.id.windDerection_textview);
-//        windTextview = findViewById(R.id.wind_textview);
-//        visibilityTextview = findViewById(R.id.visibility_textview);
-//        sunRiseTextview = findViewById(R.id.sunrise_textview);
-//        sunSetTextview = findViewById(R.id.sunset_textview);
-//        airQuality = findViewById(R.id.airqulity_textview);
-//        weatherPicture = findViewById(R.id.weather_picture);
-//        uvRays = findViewById(R.id.rays_textview);
-//        alarmCardText = findViewById(R.id.alarm_card_text);
-//        alarmContent = findViewById(R.id.alarm_content_text);
-//        alarmTypeAndLevel = findViewById(R.id.alarm_typeandlevel_text);
-//        airQualityCardView = findViewById(R.id.airqulity_cardview);
 
 
         searchButton = findViewById(R.id.search_button_title);
         searchCityText = findViewById(R.id.search_text_textview);
 
 
-        //天气信息
-//        todayWeatherTextview = findViewById(R.id.today_weather_textview);
-//        todayWeatherImageview = findViewById(R.id.today_weather_imageview);
-//        todayTemperatureTextview = findViewById(R.id.today_temperature_textview);
-//        tomorrowWeatherTextview = findViewById(R.id.tomorrow_weather_textview);
-//        tomorrowWeatherImageview = findViewById(R.id.tomorrow_weather_imageview);
-//        tomorrowTemperatureTextview = findViewById(R.id.tomorrow_temperature_textview);
-//        aftertomorrowWeatherTextview = findViewById(R.id.aftertomorrow_weather_textview);
-//        aftertomorrowWeatherImageview = findViewById(R.id.aftertomorrow_weather_imageview);
-//        aftertomorrowTemperatureTextview = findViewById(R.id.aftertomorrow_temperature_textview);
-//
-//        checkWeatherForSevenDaysButton = (Button) findViewById(R.id.weather_report_details_button);
 
 
         View rootView = findViewById(android.R.id.content);
@@ -273,60 +154,7 @@ public class MainActivity extends AppCompatActivity {
 //        initView();
 
 
-//
-//        // 预警详情点击事件
-//        alarmCardText.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this, AlarmMessageActivity.class);
-//                String alarmTitle = alarmTypeAndLevel.getText().toString();
-//                String alarmDetails = alarmContent.getText().toString();
-//                intent.putExtra("alarm_title", alarmTitle);
-//                intent.putExtra("alarm_details", alarmDetails);
-//                startActivity(intent);
-//            }
-//        });
-//
-//        //空气质量点击详情
-//        airQualityCardView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                List<DayWeatherBean> daysWeather = weatherBean.getDaysWeather();
-//                DayWeatherBean todayWeather = daysWeather.get(0);
-//                MyBottomSheetDialogFragment bottomSheet = MyBottomSheetDialogFragment.newInstance("空气质量 " + todayWeather.getAir_level() + " " + todayWeather.getAir(), "  " + todayWeather.getAir_tips());
-//                bottomSheet.show(getSupportFragmentManager(), "BottomSheetDialog");
-//            }
-//        });
-//
-//        searchCityText.setVisibility(View.GONE);
-//
-//        // 查询按钮点击事件
-//        searchButton.setOnClickListener(new View.OnClickListener() {
-//            private boolean isEditTextVisible = false;
-//            @Override
-//            public void onClick(View v) {
-//                if (!isEditTextVisible) {
-//                    // 第一次点击时显示 EditText
-//                    searchCityText.setVisibility(View.VISIBLE);
-//                    isEditTextVisible = true;
-//                } else {
-//                    fetchWeatherDataForCity(String.valueOf(searchCityText.getText()));
-//                }
-//            }
-//        });
-//
-//
-//        //查看近七日天气
-//        checkWeatherForSevenDaysButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                List<DayWeatherBean> dayWeatherBeans =  weatherBean.getDaysWeather();
-//                Intent intent = new Intent(MainActivity.this, SevenDaysWeatherActivity.class);
-//                intent.putExtra("weatherBean", (Serializable) weatherBean);
-//                startActivity(intent);
-//            }
-//        });
-//
+
 
 
 
@@ -334,8 +162,6 @@ public class MainActivity extends AppCompatActivity {
 
     //加载viewpager2
     private void initViewPager2(ViewPager2 viewPager2) {
-        weatherBeanList = new ArrayList<>();
-
 
         // 初始化适配器并传入 weatherBeanList
         myAdapter = new ViewPagerAdapter(getSupportFragmentManager(), getLifecycle(), weatherBeanList);
@@ -343,6 +169,8 @@ public class MainActivity extends AppCompatActivity {
 
         fetchWeatherDataForCity("北京");
         fetchWeatherDataForCity("西安");
+        fetchWeatherDataForCity("上海");
+
 
     }
 

@@ -13,20 +13,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:cardBackgroundColor="#00000000"
-                app:cardCornerRadius="30dp"
-                app:cardElevation="15dp">
-                <EditText
-                    android:id="@+id/search_text_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center" />
-            </androidx.cardview.widget.CardView>
+            android:orientation="vertical">
             <Button
                 android:id="@+id/search_button_title"
                 android:layout_width="40dp"
@@ -36,15 +23,16 @@
                 android:background="@drawable/find_icon"/>
         </LinearLayout>
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+<!--        <com.google.android.material.tabs.TabLayout-->
+<!--            android:id="@+id/tab_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"/>-->
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/main_viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+
 
     </LinearLayout>
     <LinearLayout
