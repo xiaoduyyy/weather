@@ -1,5 +1,6 @@
 package com.example.myweatherdemo.Activitys;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,28 +40,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.relex.circleindicator.CircleIndicator3;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppCompatSpinner mSpinner;
-    private ArrayAdapter<String> mStringAdapter;
-    private FusedLocationProviderClient fusedLocationClient;
-
-
-
     private WeatherBean weatherBean;
 
-    private Button searchButton;
+    private Button addButton;
 
     private EditText searchCityText;
-
 
     List<WeatherBean> weatherBeanList = new ArrayList<>();
     ViewPagerAdapter myAdapter;
 
     private TabLayout tab_layout;
     private ViewPager2 main_viewpager;
-
 
     private Handler mHandler = new Handler(Looper.myLooper()) {
         @Override
@@ -104,14 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.weatherBean = weatherBean;
 
-
-
-
     }
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,39 +112,24 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-//        // 确保布局文件正确加载
-//        mSpinner = findViewById(R.id.city_item);
-
-
 
 //        tab_layout = findViewById(R.id.tab_layout);
         main_viewpager = findViewById(R.id.main_viewpager);
         initViewPager2(main_viewpager);
 
-
-
-
-
-
-
-
-
-        searchButton = findViewById(R.id.search_button_title);
-        searchCityText = findViewById(R.id.search_text_textview);
-
-
-
-
+        addButton = findViewById(R.id.add_button_title);
         View rootView = findViewById(android.R.id.content);
         rootView.setBackgroundResource(R.drawable.sunny_background);
 
-//        // 其他初始化代码
-//        initView();
 
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SearchForCitysActivity.class);
 
-
-
-
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -167,6 +140,12 @@ public class MainActivity extends AppCompatActivity {
         myAdapter = new ViewPagerAdapter(getSupportFragmentManager(), getLifecycle(), weatherBeanList);
         viewPager2.setAdapter(myAdapter);
 
+
+        CircleIndicator3 indicator = findViewById(R.id.main_indicator);
+        indicator.setViewPager(viewPager2);
+        myAdapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
+
+
         fetchWeatherDataForCity("北京");
         fetchWeatherDataForCity("西安");
         fetchWeatherDataForCity("上海");
@@ -175,24 +154,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    private void initView() {
-////        mSpinner = findViewById(R.id.city_item);
-//        mCities = getResources().getStringArray(R.array.cities);
-//        mStringAdapter = new ArrayAdapter<>(this, R.layout.sp_item, mCities);
-//        mSpinner.setAdapter(mStringAdapter);
-//        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                String selectedCity = parent.getItemAtPosition(position).toString();
-//                fetchWeatherDataForCity(selectedCity);
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-//    }
 
     private void fetchWeatherDataForCity(String cityName) {
         new Thread(new Runnable() {

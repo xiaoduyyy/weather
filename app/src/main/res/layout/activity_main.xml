@@ -6,35 +6,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activitys.MainActivity">
-    <LinearLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:orientation="vertical">
             <Button
-                android:id="@+id/search_button_title"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:id="@+id/add_button_title"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:gravity="right"
                 android:layout_gravity="right"
-                android:background="@drawable/find_icon"/>
+                android:layout_margin="10dp"
+                android:background="@drawable/add_icon"/>
         </LinearLayout>
-
-<!--        <com.google.android.material.tabs.TabLayout-->
-<!--            android:id="@+id/tab_layout"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"/>-->
-
+        <me.relex.circleindicator.CircleIndicator3
+            android:id="@+id/main_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="80dp"
+            android:layout_gravity="left"
+            app:ci_width="5dp"
+            app:ci_height="5dp"
+            app:ci_margin="5dp"
+            app:ci_orientation="horizontal"/>
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/main_viewpager"
+            android:layout_marginTop="40dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-
-    </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
     <LinearLayout
         android:layout_width="200dp"
         android:layout_height="match_parent"

@@ -29,11 +29,13 @@
                 android:textColor="@color/black"
                 android:textSize="40sp"/>
             <LinearLayout
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <Button
                     android:layout_width="30dp"
-                    android:layout_height="30dp"/>
+                    android:layout_height="30dp"
+                    android:background="@drawable/search"/>
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -41,12 +43,14 @@
             </LinearLayout>
 
             <androidx.core.widget.NestedScrollView
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/citys_item_recyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent" />
             </androidx.core.widget.NestedScrollView>
         </LinearLayout>
 

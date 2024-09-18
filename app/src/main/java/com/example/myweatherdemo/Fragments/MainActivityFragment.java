@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +28,8 @@ import com.example.myweatherdemo.R;
 
 import java.io.Serializable;
 import java.util.List;
+
+import me.relex.circleindicator.CircleIndicator3;
 
 
 public class MainActivityFragment extends Fragment {
@@ -130,7 +133,7 @@ public class MainActivityFragment extends Fragment {
 
 
 
-
+        //设置天气信息
         List<DayWeatherBean> daysWeather = weatherBean.getDaysWeather();
         DayWeatherBean todayWeather = daysWeather.get(0);
         List<OtherTipsBean> otherTipsBeans = todayWeather.getmTipsBeans();
