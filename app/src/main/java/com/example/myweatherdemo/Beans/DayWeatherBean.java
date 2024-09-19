@@ -115,6 +115,10 @@ public class DayWeatherBean implements Serializable {
     @SerializedName("alarm")
     private AlarmDetailsBean alarm;
 
+
+    @SerializedName("hours")
+    private List<HoursWeatherBean> hours;
+
     public String getDay() {
         return day;
     }
@@ -275,6 +279,14 @@ public class DayWeatherBean implements Serializable {
         this.alarm = alarm;
     }
 
+    public List<HoursWeatherBean> getHours() {
+        return hours;
+    }
+
+    public void setHours(List<HoursWeatherBean> hours) {
+        this.hours = hours;
+    }
+
     @Override
     public String toString() {
         return "DayWeatherBean{" +
@@ -299,6 +311,7 @@ public class DayWeatherBean implements Serializable {
                 ", air_tips='" + air_tips + '\'' +
                 ", mTipsBeans=" + mTipsBeans +
                 ", alarm=" + alarm +
+                ", hours=" + hours +
                 '}';
     }
 }

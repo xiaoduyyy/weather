@@ -22,6 +22,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.myweatherdemo.Adapters.ViewPagerAdapter;
@@ -37,6 +38,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
     List<WeatherBean> weatherBeanList = new ArrayList<>();
     ViewPagerAdapter myAdapter;
 
-    private TabLayout tab_layout;
     private ViewPager2 main_viewpager;
+
 
     private Handler mHandler = new Handler(Looper.myLooper()) {
         @Override
@@ -113,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-//        tab_layout = findViewById(R.id.tab_layout);
         main_viewpager = findViewById(R.id.main_viewpager);
         initViewPager2(main_viewpager);
 
@@ -122,11 +123,15 @@ public class MainActivity extends AppCompatActivity {
         rootView.setBackgroundResource(R.drawable.sunny_background);
 
 
+
+
+
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, SearchForCitysActivity.class);
-
+                intent.putExtra("WeatherBeanList", (Serializable) weatherBeanList);
                 startActivity(intent);
             }
         });

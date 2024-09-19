@@ -1,5 +1,6 @@
 package com.example.myweatherdemo.Activitys;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,9 +10,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myweatherdemo.Adapters.CityItemAdapter;
+import com.example.myweatherdemo.Adapters.ViewPagerAdapter;
+import com.example.myweatherdemo.Beans.WeatherBean;
 import com.example.myweatherdemo.R;
+
+import java.io.Serializable;
+import java.util.ArrayList;
 
 public class SearchForCitysActivity extends AppCompatActivity {
 
@@ -32,6 +40,8 @@ public class SearchForCitysActivity extends AppCompatActivity {
         });
 
 
+        Intent intent = getIntent();
+        ArrayList<WeatherBean> weatherBeanList = (ArrayList<WeatherBean>) intent.getSerializableExtra("WeatherBeanList");
 
         //返回
         titleBarInclude = findViewById(R.id.title_bar_include);
@@ -45,6 +55,11 @@ public class SearchForCitysActivity extends AppCompatActivity {
 
         mRecyclerView = findViewById(R.id.citys_item_recyclerview);
 
+
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(new CityItemAdapter(weatherBeanList));
 
 
 

@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.util.Log;
@@ -19,10 +21,14 @@ import android.widget.TextView;
 import com.example.myweatherdemo.Activitys.AlarmMessageActivity;
 import com.example.myweatherdemo.Activitys.MainActivity;
 import com.example.myweatherdemo.Activitys.SevenDaysWeatherActivity;
+import com.example.myweatherdemo.Adapters.CityItemAdapter;
+import com.example.myweatherdemo.Adapters.HoursWeatherAdapter;
 import com.example.myweatherdemo.Beans.AlarmDetailsBean;
 import com.example.myweatherdemo.Beans.DayWeatherBean;
+import com.example.myweatherdemo.Beans.HoursWeatherBean;
 import com.example.myweatherdemo.Beans.OtherTipsBean;
 import com.example.myweatherdemo.Beans.WeatherBean;
+import com.example.myweatherdemo.Others.CustomRecyclerView;
 import com.example.myweatherdemo.Others.MyBottomSheetDialogFragment;
 import com.example.myweatherdemo.R;
 
@@ -57,6 +63,7 @@ public class MainActivityFragment extends Fragment {
 
     private Button checkWeatherForSevenDaysButton;
 
+    private CustomRecyclerView hoursWeather;
 
 
 
@@ -129,6 +136,9 @@ public class MainActivityFragment extends Fragment {
 
         checkWeatherForSevenDaysButton = (Button) view.findViewById(R.id.weather_report_details_button);
 
+        //小时天气
+        hoursWeather =  view.findViewById(R.id.day_hours_weather);
+
 
 
 
@@ -139,9 +149,16 @@ public class MainActivityFragment extends Fragment {
         List<OtherTipsBean> otherTipsBeans = todayWeather.getmTipsBeans();
         OtherTipsBean otherTipsBean = otherTipsBeans.get(0);
         AlarmDetailsBean alarmDetails = todayWeather.getAlarm();
+        List<HoursWeatherBean> hoursWeatherBeanList = todayWeather.getHours();
+
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        hoursWeather.setLayoutManager(layoutManager);
+        hoursWeather.setAdapter(new HoursWeatherAdapter(hoursWeatherBeanList));
 
         location.setText(weatherBean.getCity());
-        nowTempreture.setText(todayWeather.getTem() + "℃");
+        nowTempreture.setText(todayWeather.getTem());
         weather.setText(todayWeather.getWea());
         highAndLowTempreture.setText("最高" + todayWeather.getTem1() + "° 最低" + todayWeather.getTem2() +"°");
         humidityTextview.setText(todayWeather.getHumidity());
@@ -176,6 +193,7 @@ public class MainActivityFragment extends Fragment {
 
 
 
+
         // 预警详情点击事件
         alarmCardText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,9 +217,6 @@ public class MainActivityFragment extends Fragment {
                 bottomSheet.show(getActivity().getSupportFragmentManager(), "BottomSheetDialog");
             }
         });
-
-
-
 
 
         //查看近七日天气
