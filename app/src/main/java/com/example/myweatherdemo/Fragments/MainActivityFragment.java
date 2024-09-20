@@ -49,15 +49,13 @@ public class MainActivityFragment extends Fragment {
 
     private TextView location, nowTempreture, weather, highAndLowTempreture;
 
-    private TextView humidityTextview, pressureTextview, windDerectionTextview, windTextview, sunRiseTextview
-            , sunSetTextview, visibilityTextview, airQuality, uvRays;
+    private TextView humidityTextview, pressureTextview, windDerectionTextview, windTextview, sunRiseTextview, sunSetTextview, visibilityTextview, airQuality, uvRays;
 
     private TextView alarmTypeAndLevel, alarmContent;
 
     private CardView alarmCardText, airQualityCardView;
 
-    private TextView todayWeatherTextview, todayTemperatureTextview, tomorrowWeatherTextview
-            , tomorrowTemperatureTextview, aftertomorrowWeatherTextview, aftertomorrowTemperatureTextview;
+    private TextView todayWeatherTextview, todayTemperatureTextview, tomorrowWeatherTextview, tomorrowTemperatureTextview, aftertomorrowWeatherTextview, aftertomorrowTemperatureTextview;
 
     private ImageView todayWeatherImageview, tomorrowWeatherImageview, aftertomorrowWeatherImageview;
 
@@ -65,9 +63,9 @@ public class MainActivityFragment extends Fragment {
 
     private CustomRecyclerView hoursWeather;
 
+    private CardView jianfeiCardView, xuetangCardView, chuanyiCardView, xicheCardView;
 
-
-
+    private TextView jianfeiTextView, xuetangTextView, chuanyiTextView, xicheTextView;
 
 
     public MainActivityFragment() {
@@ -137,10 +135,17 @@ public class MainActivityFragment extends Fragment {
         checkWeatherForSevenDaysButton = (Button) view.findViewById(R.id.weather_report_details_button);
 
         //小时天气
-        hoursWeather =  view.findViewById(R.id.day_hours_weather);
+        hoursWeather = view.findViewById(R.id.day_hours_weather);
 
-
-
+        //下方卡片
+        jianfeiCardView = view.findViewById(R.id.jianfeizhishu_cardview);
+        xuetangCardView = view.findViewById(R.id.xuetangzhishu_cardview);
+        chuanyiCardView = view.findViewById(R.id.chuanyizhishu_cardview);
+        xicheCardView = view.findViewById(R.id.xichezhishu_cardview);
+        jianfeiTextView = view.findViewById(R.id.jianfei_textview);
+        xuetangTextView = view.findViewById(R.id.xuetang_textview);
+        chuanyiTextView = view.findViewById(R.id.chuanyi_textview);
+        xicheTextView = view.findViewById(R.id.xiche_textview);
 
 
         //设置天气信息
@@ -148,6 +153,10 @@ public class MainActivityFragment extends Fragment {
         DayWeatherBean todayWeather = daysWeather.get(0);
         List<OtherTipsBean> otherTipsBeans = todayWeather.getmTipsBeans();
         OtherTipsBean otherTipsBean = otherTipsBeans.get(0);
+        OtherTipsBean otherTipsBean1 = otherTipsBeans.get(1);
+        OtherTipsBean otherTipsBean2 = otherTipsBeans.get(2);
+        OtherTipsBean otherTipsBean3 = otherTipsBeans.get(3);
+        OtherTipsBean otherTipsBean4 = otherTipsBeans.get(4);
         AlarmDetailsBean alarmDetails = todayWeather.getAlarm();
         List<HoursWeatherBean> hoursWeatherBeanList = todayWeather.getHours();
 
@@ -160,7 +169,7 @@ public class MainActivityFragment extends Fragment {
         location.setText(weatherBean.getCity());
         nowTempreture.setText(todayWeather.getTem());
         weather.setText(todayWeather.getWea());
-        highAndLowTempreture.setText("最高" + todayWeather.getTem1() + "° 最低" + todayWeather.getTem2() +"°");
+        highAndLowTempreture.setText("最高" + todayWeather.getTem1() + "° 最低" + todayWeather.getTem2() + "°");
         humidityTextview.setText(todayWeather.getHumidity());
         pressureTextview.setText(todayWeather.getPressure());
         windDerectionTextview.setText(todayWeather.getWin()[0]);
@@ -173,7 +182,6 @@ public class MainActivityFragment extends Fragment {
 
         alarmMessageSet(alarmDetails);
         WeatherIconSet(weatherPicture, todayWeather.getWea());
-
 
 
         todayWeatherTextview.setText(todayWeather.getWea());
@@ -190,9 +198,41 @@ public class MainActivityFragment extends Fragment {
         WeatherIconSet(aftertomorrowWeatherImageview, afterTomorrowWeatherBean.getWea());
         aftertomorrowTemperatureTextview.setText(afterTomorrowWeatherBean.getTem2() + "°" + "~" + afterTomorrowWeatherBean.getTem1() + "°");
 
+        //卡片设置
+        jianfeiTextView.setText(otherTipsBean1.getLevel());
+        xuetangTextView.setText(otherTipsBean2.getLevel());
+        chuanyiTextView.setText(otherTipsBean3.getLevel());
+        xicheTextView.setText(otherTipsBean4.getLevel());
 
-
-
+        //卡片详情点击
+        jianfeiCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyBottomSheetDialogFragment bottomSheet = MyBottomSheetDialogFragment.newInstance(otherTipsBean1.getTitle() + " " + otherTipsBean1.getLevel(), otherTipsBean1.getDesc());
+                bottomSheet.show(getActivity().getSupportFragmentManager(), "BottomSheetDialog");
+            }
+        });
+        xuetangCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyBottomSheetDialogFragment bottomSheet = MyBottomSheetDialogFragment.newInstance(otherTipsBean2.getTitle() + " " + otherTipsBean2.getLevel(), otherTipsBean2.getDesc());
+                bottomSheet.show(getActivity().getSupportFragmentManager(), "BottomSheetDialog");
+            }
+        });
+        chuanyiCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyBottomSheetDialogFragment bottomSheet = MyBottomSheetDialogFragment.newInstance(otherTipsBean3.getTitle() + " " + otherTipsBean3.getLevel(), otherTipsBean3.getDesc());
+                bottomSheet.show(getActivity().getSupportFragmentManager(), "BottomSheetDialog");
+            }
+        });
+        xicheCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyBottomSheetDialogFragment bottomSheet = MyBottomSheetDialogFragment.newInstance(otherTipsBean4.getTitle() + " " + otherTipsBean4.getLevel(), otherTipsBean4.getDesc());
+                bottomSheet.show(getActivity().getSupportFragmentManager(), "BottomSheetDialog");
+            }
+        });
 
         // 预警详情点击事件
         alarmCardText.setOnClickListener(new View.OnClickListener() {
@@ -223,7 +263,7 @@ public class MainActivityFragment extends Fragment {
         checkWeatherForSevenDaysButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<DayWeatherBean> dayWeatherBeans =  weatherBean.getDaysWeather();
+                List<DayWeatherBean> dayWeatherBeans = weatherBean.getDaysWeather();
                 Intent intent = new Intent(getActivity(), SevenDaysWeatherActivity.class);
                 intent.putExtra("weatherBean", (Serializable) weatherBean);
                 startActivity(intent);
@@ -247,7 +287,7 @@ public class MainActivityFragment extends Fragment {
 
     //更新天气小图标
     private void WeatherIconSet(ImageView imageView, String weather) {
-        switch(weather) {
+        switch (weather) {
             case "晴":
                 imageView.setImageResource(R.drawable.weather_qing);
                 break;

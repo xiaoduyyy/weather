@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
         fetchWeatherDataForCity("北京");
         fetchWeatherDataForCity("西安");
         fetchWeatherDataForCity("上海");
+        fetchWeatherDataForCity("咸阳");
 
 
     }
