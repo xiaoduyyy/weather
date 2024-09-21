@@ -1,50 +1,54 @@
-package com.example.myweatherdemo.Beans;
+    package com.example.myweatherdemo.Beans;
 
-import com.google.gson.annotations.SerializedName;
+    import androidx.room.Entity;
+    import androidx.room.ForeignKey;
+    import androidx.room.PrimaryKey;
 
-import java.io.Serializable;
+    import com.google.gson.annotations.SerializedName;
 
-public class OtherTipsBean implements Serializable {
+    import java.io.Serializable;
 
-    @SerializedName("title")
-    private String title;
+    public class OtherTipsBean implements Serializable {
 
-    @SerializedName("level")
-    private String level;
+        @SerializedName("title")
+        private String title;
 
-    @SerializedName("desc")
-    private String desc;
+        @SerializedName("level")
+        private String level;
 
-    public String getTitle() {
-        return title;
+        @SerializedName("desc")
+        private String desc;
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getLevel() {
+            return level;
+        }
+
+        public void setLevel(String level) {
+            this.level = level;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public void setDesc(String desc) {
+            this.desc = desc;
+        }
+
+        @Override
+        public String toString() {
+            return "OtherTipsBean{" +
+                    "title='" + title + '\'' +
+                    ", level='" + level + '\'' +
+                    ", desc='" + desc + '\'' +
+                    '}';
+        }
     }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    @Override
-    public String toString() {
-        return "OtherTipsBean{" +
-                "title='" + title + '\'' +
-                ", level='" + level + '\'' +
-                ", desc='" + desc + '\'' +
-                '}';
-    }
-}

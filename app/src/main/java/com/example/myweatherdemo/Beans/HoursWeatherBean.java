@@ -1,10 +1,15 @@
 package com.example.myweatherdemo.Beans;
 
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
 public class HoursWeatherBean implements Serializable {
+
     @SerializedName("hours")
     private String hours;
 

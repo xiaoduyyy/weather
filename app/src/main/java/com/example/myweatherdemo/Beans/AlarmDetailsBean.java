@@ -1,11 +1,24 @@
 package com.example.myweatherdemo.Beans;
 
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
+@Entity(tableName = "alarm_details_table",
+        foreignKeys = @ForeignKey(entity = WeatherBean.class,
+                parentColumns = "id",
+                childColumns = "weatherId",
+                onDelete = ForeignKey.CASCADE))
 public class AlarmDetailsBean implements Serializable {
 
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+
+    private int weatherId;  // 用于关联WeatherBean
     @SerializedName("alarm_type")
     private String alarm_type;
 

@@ -14,41 +14,46 @@ import java.util.List;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
-    List<WeatherBean> weatherList;
+    List<WeatherBean> mWeatherList;
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, List<WeatherBean> weatherList) {
         super(fragmentActivity);
-        this.weatherList = weatherList;
+        this.mWeatherList = weatherList;
     }
 
     public ViewPagerAdapter(@NonNull Fragment fragment, List<WeatherBean> weatherList) {
         super(fragment);
-        this.weatherList = weatherList;
+        this.mWeatherList = weatherList;
     }
 
 
-    public List<WeatherBean> getWeatherList() {
-        return weatherList;
+    public List<WeatherBean> getmWeatherList() {
+        return mWeatherList;
     }
 
-    public void setWeatherList(List<WeatherBean> weatherList) {
-        this.weatherList = weatherList;
+    public void setmWeatherList(List<WeatherBean> mWeatherList) {
+        this.mWeatherList = mWeatherList;
     }
 
     public ViewPagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, List<WeatherBean> weatherList) {
         super(fragmentManager, lifecycle);
-        this.weatherList = weatherList;
+        this.mWeatherList = weatherList;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
         // 根据位置传递不同的 WeatherBean 给 Fragment
-        return MainActivityFragment.newInstance(weatherList.get(position));
+        return MainActivityFragment.newInstance(mWeatherList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return weatherList == null ? 0 : weatherList.size();
+        return mWeatherList == null ? 0 : mWeatherList.size();
+    }
+
+    public void updateData(List<WeatherBean> weatherList) {
+        this.mWeatherList = weatherList;
+        notifyDataSetChanged();
     }
 }

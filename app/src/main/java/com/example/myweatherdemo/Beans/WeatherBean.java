@@ -1,13 +1,18 @@
 package com.example.myweatherdemo.Beans;
 
 import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.Relation;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.List;
 
+
 public class WeatherBean implements Serializable {
+
+
 
     @SerializedName("cityid")
     private String cityid;

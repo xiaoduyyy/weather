@@ -64,10 +64,9 @@ public class AddCityActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AddCityActivity.this, MainActivity.class);
-                intent.putExtra("addCityName", (Serializable) weatherBean);
+                intent.putExtra("addCityName", cityName);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
-
             }
         });
     }
@@ -116,7 +115,6 @@ public class AddCityActivity extends AppCompatActivity {
 
     private void updateUI() {
         cityNameTextView.setText(weatherBean.getCity());
-
         // 初始化 Adapter 并绑定数据到 RecyclerView
         MyWeatherAdapter myWeatherAdapter = new MyWeatherAdapter(weatherBean.getDaysWeather());
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);

@@ -1,5 +1,9 @@
 package com.example.myweatherdemo.Beans;
 
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -39,10 +43,7 @@ import java.util.List;
 //预计我市市中区部分地方3小时降雨量将达50毫米以上，并伴有雷电和阵性大风，请加强防范强降水、雷电和大风等带来的危害。
 //        （预警信息来源：国家预警信息发布中心）" #预警详情描述
 //        },
-
 public class DayWeatherBean implements Serializable {
-
-
 
     @SerializedName("day")
     private String day;
