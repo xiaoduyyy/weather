@@ -33,25 +33,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <Button
+                    android:id="@+id/search_for_city_button"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:background="@drawable/search"/>
                 <EditText
+                    android:id="@+id/searchcity_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="搜索位置"/>
+                    android:hint="搜索位置 . . ."
+                    android:textColor="@color/black"
+                    android:textColorHint="#90000000"/>
             </LinearLayout>
-
-            <androidx.core.widget.NestedScrollView
-                android:layout_marginTop="10dp"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/citys_item_recyclerview"
+                android:layout_marginTop="5dp"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/citys_item_recyclerview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </androidx.core.widget.NestedScrollView>
+                android:layout_height="match_parent" />
         </LinearLayout>
 
 

@@ -17,6 +17,9 @@
         android:theme="@style/Theme.AppCompat"
         tools:targetApi="31">
         <activity
+            android:name=".Activitys.AddCityActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activitys.SearchForCitysActivity"
             android:exported="false" />
         <activity
@@ -27,7 +30,8 @@
             android:exported="false" />
         <activity
             android:name=".Activitys.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="standard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

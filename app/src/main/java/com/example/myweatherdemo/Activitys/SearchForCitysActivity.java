@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +27,10 @@ public class SearchForCitysActivity extends AppCompatActivity {
     private View titleBarInclude;
     private Button backButton;
 
+    private Button searchButton;
     RecyclerView mRecyclerView;
+
+    private EditText searchCityText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +58,22 @@ public class SearchForCitysActivity extends AppCompatActivity {
         });
 
         mRecyclerView = findViewById(R.id.citys_item_recyclerview);
-
-
+        searchButton = (Button) findViewById(R.id.search_for_city_button);
+        searchCityText = findViewById(R.id.searchcity_text);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(new CityItemAdapter(weatherBeanList));
+
+        //搜索城市
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(SearchForCitysActivity.this, AddCityActivity.class);
+                intent1.putExtra("CityName", searchCityText.getText().toString());
+                startActivity(intent1);
+            }
+        });
 
 
 

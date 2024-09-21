@@ -123,6 +123,17 @@ public class MainActivity extends AppCompatActivity {
         rootView.setBackgroundResource(R.drawable.sunny_background);
 
 
+        Intent intentGetCity = getIntent();
+        if (intentGetCity != null) {
+            WeatherBean addCity = (WeatherBean) intentGetCity.getSerializableExtra("addCityName");
+            if (addCity != null) {
+                Log.d("addCityName", "onCreate: 接收到传递的城市");
+                weatherBeanList.add(addCity);
+            } else {
+                Log.e("addCityName", "onCreate: 未能接收到传递的 WeatherBean");
+            }
+        }
+
 
 
 
@@ -151,10 +162,8 @@ public class MainActivity extends AppCompatActivity {
         myAdapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
 
 
-        fetchWeatherDataForCity("北京");
         fetchWeatherDataForCity("西安");
         fetchWeatherDataForCity("上海");
-        fetchWeatherDataForCity("咸阳");
 
 
     }
