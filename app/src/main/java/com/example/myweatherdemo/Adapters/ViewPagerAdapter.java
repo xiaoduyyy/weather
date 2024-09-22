@@ -52,8 +52,9 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         return mWeatherList == null ? 0 : mWeatherList.size();
     }
 
-    public void updateData(List<WeatherBean> weatherList) {
+    public List<WeatherBean> updateData(List<WeatherBean> weatherList) {
         this.mWeatherList = weatherList;
         notifyDataSetChanged();
+        return weatherList;
     }
 }

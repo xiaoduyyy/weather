@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class AddCityActivity extends AppCompatActivity {
 
@@ -34,9 +35,11 @@ public class AddCityActivity extends AppCompatActivity {
 
     private WeatherBean weatherBean;
 
-    private TextView cityNameTextView;
+    private TextView cityNameTextView, addCityTextView;
 
     private Button addCityButoon;
+
+    private int isLive = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +55,20 @@ public class AddCityActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.addcity_cityweather_recyclerview);
         cityNameTextView = findViewById(R.id.addcity_cityname_textview);
         addCityButoon = (Button) findViewById(R.id.addcity_commit_button);
-
+        addCityTextView = findViewById(R.id.addcity_add_or_go_textview);
 
         Intent intent = getIntent();
         String cityName = intent.getStringExtra("CityName");
         fetchWeatherDataForCity(cityName);
+        ArrayList<String> cityNames = intent.getStringArrayListExtra("CityNames");
 
-
+        for (String name : cityNames) {
+            if (name.equals(cityName)) {
+                isLive = 1;
+                addCityButoon.setBackgroundResource(R.drawable.goto_icon);
+                addCityTextView.setText("前往主页查看");
+            }
+        }
 
         addCityButoon.setOnClickListener(new View.OnClickListener() {
             @Override

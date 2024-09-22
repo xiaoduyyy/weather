@@ -13,7 +13,6 @@ import java.util.List;
 public class WeatherBean implements Serializable {
 
 
-
     @SerializedName("cityid")
     private String cityid;
 

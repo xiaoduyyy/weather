@@ -44,6 +44,9 @@ public class SearchForCitysActivity extends AppCompatActivity {
     private EditText searchCityText;
     private WeatherDatabase weatherDatabase;
     private List<WeatherBean> weatherList;
+
+    private List<String> cityNames = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +77,7 @@ public class SearchForCitysActivity extends AppCompatActivity {
                     Gson gson = new Gson();
                     WeatherBean weatherBean = gson.fromJson(weatherJson, WeatherBean.class);
                     weatherList.add(weatherBean);
+                    cityNames.add(weatherBean.getCity());
                     Log.d(TAG, "run: " + weatherBean);
                 }
                 latch.countDown();
@@ -101,7 +105,7 @@ public class SearchForCitysActivity extends AppCompatActivity {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setAdapter(new CityItemAdapter(weatherList));
+        mRecyclerView.setAdapter(new CityItemAdapter(weatherList, weatherDao));
 
         //搜索城市
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -109,6 +113,7 @@ public class SearchForCitysActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent1 = new Intent(SearchForCitysActivity.this, AddCityActivity.class);
                 intent1.putExtra("CityName", searchCityText.getText().toString());
+                intent1.putStringArrayListExtra("CityNames", (ArrayList<String>) cityNames);
                 startActivity(intent1);
             }
         });

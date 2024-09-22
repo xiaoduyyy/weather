@@ -1,6 +1,9 @@
 package com.example.myweatherdemo.Activitys;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -68,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     private WeatherDatabase db;
 
+    private Button flash_button;
+
     private Handler mHandler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -75,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
             if (msg.what == 0) {
                 String weather = (String) msg.obj;
                 Log.d("fan", "---------收到了---------" + weather);
+
+                if (weather == null) {
+                    Toast.makeText(MainActivity.this, "网络请求失败！！", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 WeatherDataEntity weatherDataEntity = new WeatherDataEntity();
                 weatherDataEntity.weatherJson = weather;
@@ -96,13 +106,7 @@ public class MainActivity extends AppCompatActivity {
 //                upDateUiOfWeather(weatherBean);
             }
         }
-
     };
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 
     private void loadAllWeatherData() {
         new Thread(() -> {
@@ -117,24 +121,12 @@ public class MainActivity extends AppCompatActivity {
             }
             // 更新主线程中的 weatherBeanList
             runOnUiThread(() -> {
-                myAdapter.updateData(loadedWeatherBeans);
+                weatherBeanList = myAdapter.updateData(loadedWeatherBeans);
             });
         }).start();
     }
 
 
-//    //更新所有天气信息
-//    private void upDateUiOfWeather(WeatherBean weatherBean) {
-//        if (weatherBean == null) {
-//            return;
-//        }
-//
-//        if (weatherBean.getDaysWeather() == null || weatherBean.getDaysWeather().isEmpty()) {
-//            Toast.makeText(this, "您输入的城市有误", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,8 +148,7 @@ public class MainActivity extends AppCompatActivity {
         addButton = findViewById(R.id.add_button_title);
         View rootView = findViewById(android.R.id.content);
         rootView.setBackgroundResource(R.drawable.sunny_background);
-
-
+        flash_button = (Button) findViewById(R.id.flash_button);
 
         Intent intentGetCity = getIntent();
         if (intentGetCity.getStringExtra("addCityName") != null) {
@@ -172,13 +163,32 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: nidielaile");
         }
 
-
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, SearchForCitysActivity.class);
                 intent.putExtra("WeatherBeanList", (Serializable) weatherBeanList);
                 startActivity(intent);
+            }
+        });
+
+        flash_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<String> citys = new ArrayList<>();
+                for (WeatherBean bean : weatherBeanList) {
+                    citys.add(bean.getCity());
+                }
+                if (isNetworkAvailable(MainActivity.this)) {
+                    new Thread(() -> db.weatherDao().clearAllWeatherData()).start();
+                    for (String city : citys) {
+                        fetchWeatherDataForCity(city);
+                    }
+                    Toast.makeText(MainActivity.this, "更新成功！！", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "网络出现了问题QWQ", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
@@ -196,9 +206,13 @@ public class MainActivity extends AppCompatActivity {
                 for (WeatherDataEntity entity : entities) {
                     Gson gson = new Gson();
                     WeatherBean weatherBean = gson.fromJson(entity.weatherJson, WeatherBean.class);
-                    weatherBeanList.add(weatherBean);
-                    // 处理解析后的 weatherBean，比如更新 UI 或保存到列表
-                    Log.d("WeatherData", "城市天气数据: " + weatherBean.toString());
+                    if (weatherBean != null) {
+                        weatherBeanList.add(weatherBean);
+                        // 处理解析后的 weatherBean，比如更新 UI 或保存到列表
+                        Log.d("WeatherData", "城市天气数据: " + weatherBean.toString());
+                    } else {
+                        Log.e("WeatherData", "解析后的 WeatherBean 为空，检查数据格式或内容。");
+                    }
                 }
                 latch.countDown();
             }
@@ -236,6 +250,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    //网络是否连接
+    public boolean isNetworkAvailable(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
     }
 
 }

@@ -19,4 +19,12 @@ public interface WeatherDao {
 
     @Query("DELETE FROM weather_data") // 清除所有数据
     void clearAllWeatherData();
+
+    // 根据 ID 删除特定数据
+    @Query("DELETE FROM weather_data WHERE id = :weatherId")
+    void deleteWeatherDataById(int weatherId);
+
+    // 根据 cityId 删除特定数据
+    @Query("DELETE FROM weather_data WHERE city_id = :cityId")
+    void deleteWeatherDataByCityId(String cityId);
 }
