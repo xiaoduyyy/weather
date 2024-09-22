@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#c4cbcf"
     tools:context=".Activitys.SearchForCitysActivity">
 
     <include
@@ -42,8 +42,10 @@
                     android:id="@+id/searchView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:outlineAmbientShadowColor="@color/black"
-                    android:queryHint="请输入城市名称" />
+                    android:textColorHint="@color/black"
+                    android:textColor="@color/black"
+                    android:queryHint="请输入城市名称"
+                    app:iconTint="@color/black"/>
 <!--                <EditText-->
 <!--                    android:id="@+id/searchcity_text"-->
 <!--                    android:layout_width="match_parent"-->

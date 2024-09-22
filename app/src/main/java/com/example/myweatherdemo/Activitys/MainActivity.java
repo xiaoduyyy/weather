@@ -272,6 +272,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        db.weatherDao().clearAllWeatherData();
+                    }
+                }).start();
+
                 // 按城市名称重新获取数据
                 for (String city : cityNames) {
                     fetchWeatherDataForCity(city);
@@ -288,6 +295,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
-
-
 }

@@ -94,14 +94,20 @@ public class SearchForCitysActivity extends AppCompatActivity {
         // 获取 "location" 数组
         JsonArray jsonArray = jsonObject.getAsJsonArray("location");
 
+        if (jsonArray == null) {
+            Log.e(TAG, "Location array is null");
+            runOnUiThread(() -> Toast.makeText(SearchForCitysActivity.this, "未能获取到城市信息", Toast.LENGTH_SHORT).show());
+            return;
+        }
+
         // 遍历数组中的每个元素
         for (JsonElement jsonElement : jsonArray) {
             JsonObject cityObject = jsonElement.getAsJsonObject();
 
             // 获取城市名称和行政区信息
-            String name = cityObject.get("name").getAsString();  // 获取城市名称
-            String adm1 = cityObject.get("adm1").getAsString();  // 获取一级行政区信息
-            String adm2 = cityObject.get("adm2").getAsString();  // 获取二级行政区信息
+            String name = cityObject.get("name").getAsString();
+            String adm1 = cityObject.get("adm1").getAsString();
+            String adm2 = cityObject.get("adm2").getAsString();
 
             // 组合为所需的格式
             String cityInfo = name + "——" + adm1 + "——" + adm2;
@@ -110,14 +116,14 @@ public class SearchForCitysActivity extends AppCompatActivity {
 
         citys = cityList;
         Log.d(TAG, "parseToCityString: xian" + citys);
-        // 确保适配器的数据被更新
         runOnUiThread(() -> {
             SearchCityItemsAdapter adapter = (SearchCityItemsAdapter) cityItemRecyclerView.getAdapter();
             if (adapter != null) {
-                adapter.updateCityList(citys);  // 更新适配器中的数据
+                adapter.updateCityList(citys);
             }
         });
     }
+
 
 
     @Override
@@ -200,7 +206,7 @@ public class SearchForCitysActivity extends AppCompatActivity {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setAdapter(new CityItemAdapter(weatherList, weatherDao));
+        mRecyclerView.setAdapter(new CityItemAdapter(weatherList, weatherDao, this));
 
 //        //搜索城市
 //        searchButton.setOnClickListener(new View.OnClickListener() {
@@ -221,13 +227,23 @@ public class SearchForCitysActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                fetchCitys(newText);
+                if (newText.isEmpty()) {
+                    // 显示 RecyclerView
+                    mRecyclerView.setVisibility(View.VISIBLE);
+                } else {
+                    // 隐藏 RecyclerView
+                    mRecyclerView.setVisibility(View.GONE);
+                    fetchCitys(newText);  // 调用获取城市的方法
+                }
                 return true;
             }
         });
 
     }
     private void fetchCitys(String city) {
+        if (city == null || city.trim().isEmpty()) {
+            return;  // 不进行网络请求
+        }
         new Thread(() -> {
             try {
                 Log.d(TAG, "fetchCitys: 111111111111111111111111111");

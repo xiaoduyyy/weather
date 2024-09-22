@@ -1,5 +1,9 @@
 package com.example.myweatherdemo.Adapters;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +25,7 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
 
     List<WeatherBean> weatherList;
     WeatherDao weatherDao;
+    Context context;
 
     public CityItemAdapter(List<WeatherBean> weatherList) {
         this.weatherList = weatherList;
@@ -29,6 +34,12 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
     public CityItemAdapter(List<WeatherBean> weatherList, WeatherDao weatherDao) {
         this.weatherList = weatherList;
         this.weatherDao = weatherDao;
+    }
+
+    public CityItemAdapter(List<WeatherBean> weatherList, WeatherDao weatherDao, Context context) {
+        this.weatherList = weatherList;
+        this.weatherDao = weatherDao;
+        this.context = context;
     }
 
     @NonNull
@@ -51,7 +62,7 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
 
         // 为 itemView 设置长按删除事件
         holder.itemView.setOnLongClickListener(v -> {
-            removeItem(position, weatherDao);  // 调用删除方法
+            showDeleteConfirmationDialog(position);  // 调用删除方法
             return true;
         });
     }
@@ -74,19 +85,33 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
         }
     }
 
-    public void removeItem(int position, WeatherDao weatherDao) {
-        WeatherBean weatherBean = weatherList.get(position);
+    private void showDeleteConfirmationDialog(int position) {
+        new AlertDialog.Builder(context)
+                .setTitle("确认删除")
+                .setMessage("您确定要删除这个项目吗？")
+                .setPositiveButton("确定", (dialog, which) -> {
+                    removeItem(position);
+                })
+                .setNegativeButton("取消", null) // 取消时什么也不做
+                .show();
+    }
 
+    private void removeItem(int position) {
+        WeatherBean weatherBean = weatherList.get(position);
 
         // 在数据库中删除该条记录
         new Thread(() -> {
-            weatherDao.deleteWeatherDataByCityId(weatherBean.getCity());  // 根据 ID 删除数据库中的数据
-        }).start();
+            weatherDao.deleteWeatherDataByCityId(weatherBean.getCity()); // 根据城市 ID 删除
 
-        // 从列表中删除数据并通知适配器更新视图
-        weatherList.remove(position);
-        notifyDataSetChanged();
+            // 使用 Handler 更新 UI
+            new Handler(Looper.getMainLooper()).post(() -> {
+                // 从列表中删除数据并通知适配器更新视图
+                weatherList.remove(position);
+                notifyItemRemoved(position);
+            });
+        }).start();
     }
+
 
 
 }
