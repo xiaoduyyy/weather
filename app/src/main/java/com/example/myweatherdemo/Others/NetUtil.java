@@ -13,6 +13,11 @@ public class NetUtil {
 
     public static final String URL_WEATHER = "https://v1.yiketianqi.com/api?unescape=1&version=v9&appid=65691699&appsecret=4kL6bwx1";
 
+    public static final String URL_CITY = "http://ykyaqi.tianqiapi.com/?version=alist&citycode=370100&appid=65691699&appsecret=4kL6bwx1";
+
+    private static final String URL_CITY_DAY = "https://geoapi.qweather.com/v2/city/lookup?";
+    private static final String API_KEY = "8d10337174fe4491894596b13e2155bb";
+
     public static String doGet(String urlStr) throws IOException {
         String result = "";
         try {
@@ -31,11 +36,22 @@ public class NetUtil {
 
     public static String getWeatherOfCity(String city) throws IOException {
         String weatherUrl = URL_WEATHER + "&city=" + city;
-        Log.d("fan", "------------------weatherUrl------- " + weatherUrl);
+        Log.d("fan11", "------------------weatherUrl------- " + weatherUrl);
 
         String weatherResult = doGet(weatherUrl);
-        Log.d("fan", "------------------weatherResult------- " + weatherUrl);
+        Log.d("fan11", "------------------weatherResult------- " + weatherResult);
+
 
         return weatherResult;
+    }
+    public static String getCitys(String name) throws IOException {
+        String weatherUrl = URL_CITY_DAY + "location=" + name + "&key=" + API_KEY + "&range=cn";
+        Log.d("fan22", "------------------weatherUrl------- " + weatherUrl);
+
+        String cityResult = doGet(weatherUrl);
+        Log.d("fan22", "------------------weatherResult------- " + cityResult);
+
+
+        return cityResult;
     }
 }

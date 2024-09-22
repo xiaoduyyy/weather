@@ -77,18 +77,15 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
     public void removeItem(int position, WeatherDao weatherDao) {
         WeatherBean weatherBean = weatherList.get(position);
 
-        // 获取要删除的数据的 ID
-        String cityid = weatherBean.getCityid();// 假设 WeatherBean 中有 getId() 方法
 
         // 在数据库中删除该条记录
         new Thread(() -> {
-            weatherDao.deleteWeatherDataByCityId(cityid);  // 根据 ID 删除数据库中的数据
+            weatherDao.deleteWeatherDataByCityId(weatherBean.getCity());  // 根据 ID 删除数据库中的数据
         }).start();
 
         // 从列表中删除数据并通知适配器更新视图
         weatherList.remove(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, weatherList.size());
+        notifyDataSetChanged();
     }
 
 

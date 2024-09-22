@@ -74,7 +74,9 @@ public class AddCityActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AddCityActivity.this, MainActivity.class);
-                intent.putExtra("addCityName", cityName);
+                if (isLive == 0) {
+                    intent.putExtra("addCityName", cityName);
+                }
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }

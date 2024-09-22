@@ -2,12 +2,18 @@ package com.example.myweatherdemo.Activitys;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SearchView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -17,14 +23,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import com.example.myweatherdemo.Adapters.CityItemAdapter;
+import com.example.myweatherdemo.Adapters.SearchCityItemsAdapter;
 import com.example.myweatherdemo.Adapters.ViewPagerAdapter;
 import com.example.myweatherdemo.Beans.WeatherBean;
+import com.example.myweatherdemo.Others.NetUtil;
 import com.example.myweatherdemo.R;
 import com.example.myweatherdemo.Room.WeatherDao;
 import com.example.myweatherdemo.Room.WeatherDataEntity;
 import com.example.myweatherdemo.Room.WeatherDatabase;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,13 +54,71 @@ public class SearchForCitysActivity extends AppCompatActivity {
     private Button backButton;
 
     private Button searchButton;
-    RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView, cityItemRecyclerView;
 
     private EditText searchCityText;
     private WeatherDatabase weatherDatabase;
     private List<WeatherBean> weatherList;
 
     private List<String> cityNames = new ArrayList<>();
+
+    private SearchView searchView;
+
+    private List<String> citys = new ArrayList<>();
+
+    private Handler mHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == 0) {
+                String city = (String) msg.obj;
+                Log.d("fan222", "---------收到了---------" + city);
+
+                if (city == null) {
+                    Toast.makeText(SearchForCitysActivity.this, "网络请求失败！！", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                parseToCityString(city);
+                cityItemRecyclerView.getAdapter().notifyDataSetChanged();
+
+            }
+        }
+    };
+
+    private void parseToCityString(String cityJson) {
+        List<String> cityList = new ArrayList<>();
+
+        // 将 JSON 字符串解析为 JsonObject
+        JsonObject jsonObject = JsonParser.parseString(cityJson).getAsJsonObject();
+
+        // 获取 "location" 数组
+        JsonArray jsonArray = jsonObject.getAsJsonArray("location");
+
+        // 遍历数组中的每个元素
+        for (JsonElement jsonElement : jsonArray) {
+            JsonObject cityObject = jsonElement.getAsJsonObject();
+
+            // 获取城市名称和行政区信息
+            String name = cityObject.get("name").getAsString();  // 获取城市名称
+            String adm1 = cityObject.get("adm1").getAsString();  // 获取一级行政区信息
+            String adm2 = cityObject.get("adm2").getAsString();  // 获取二级行政区信息
+
+            // 组合为所需的格式
+            String cityInfo = name + "——" + adm1 + "——" + adm2;
+            cityList.add(cityInfo);
+        }
+
+        citys = cityList;
+        Log.d(TAG, "parseToCityString: xian" + citys);
+        // 确保适配器的数据被更新
+        runOnUiThread(() -> {
+            SearchCityItemsAdapter adapter = (SearchCityItemsAdapter) cityItemRecyclerView.getAdapter();
+            if (adapter != null) {
+                adapter.updateCityList(citys);  // 更新适配器中的数据
+            }
+        });
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +131,31 @@ public class SearchForCitysActivity extends AppCompatActivity {
             return insets;
         });
 
+//        fetchCitys();
 
 //        Intent intent = getIntent();
 //        ArrayList<WeatherBean> weatherBeanList = (ArrayList<WeatherBean>) intent.getSerializableExtra("WeatherBeanList");
 
         weatherDatabase = Room.databaseBuilder(this, WeatherDatabase.class, "weather-database").build();
         WeatherDao weatherDao = weatherDatabase.weatherDao();
+
+
+
+
+        cityItemRecyclerView = findViewById(R.id.search_recyclerview);
+        LinearLayoutManager layoutManager1 = new LinearLayoutManager(this);
+        cityItemRecyclerView.setLayoutManager(layoutManager1);
+        // 创建适配器并传入点击事件监听器
+        SearchCityItemsAdapter adapter = new SearchCityItemsAdapter(citys, new SearchCityItemsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String cityInfo) {
+                Intent intent1 = new Intent(SearchForCitysActivity.this, AddCityActivity.class);
+                intent1.putExtra("CityName", cityInfo);
+                intent1.putStringArrayListExtra("CityNames", (ArrayList<String>) cityNames);
+                startActivity(intent1);
+            }
+        });
+        cityItemRecyclerView.setAdapter(adapter);
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -100,23 +192,60 @@ public class SearchForCitysActivity extends AppCompatActivity {
         });
 
         mRecyclerView = findViewById(R.id.citys_item_recyclerview);
-        searchButton = (Button) findViewById(R.id.search_for_city_button);
-        searchCityText = findViewById(R.id.searchcity_text);
+//        searchButton = (Button) findViewById(R.id.search_for_city_button);
+//        searchCityText = findViewById(R.id.searchcity_text);
+        searchView = findViewById(R.id.searchView);
+
+
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(new CityItemAdapter(weatherList, weatherDao));
 
-        //搜索城市
-        searchButton.setOnClickListener(new View.OnClickListener() {
+//        //搜索城市
+//        searchButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent1 = new Intent(SearchForCitysActivity.this, AddCityActivity.class);
+//                intent1.putExtra("CityName", searchCityText.getText().toString());
+//                intent1.putStringArrayListExtra("CityNames", (ArrayList<String>) cityNames);
+//                startActivity(intent1);
+//            }
+//        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(SearchForCitysActivity.this, AddCityActivity.class);
-                intent1.putExtra("CityName", searchCityText.getText().toString());
-                intent1.putStringArrayListExtra("CityNames", (ArrayList<String>) cityNames);
-                startActivity(intent1);
+            public boolean onQueryTextSubmit(String query) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                fetchCitys(newText);
+                return true;
             }
         });
 
+    }
+    private void fetchCitys(String city) {
+        new Thread(() -> {
+            try {
+                Log.d(TAG, "fetchCitys: 111111111111111111111111111");
+                String weatherOfCity = NetUtil.getCitys(city);
+                Log.d(TAG, "fetchCitys: 2222222222222222222222222222");
+
+                if (weatherOfCity != null) {
+                    Message message = Message.obtain();
+                    message.what = 0;
+                    message.obj = weatherOfCity;
+                    mHandler.sendMessage(message);
+                } else {
+                    runOnUiThread(() -> Toast.makeText(SearchForCitysActivity.this, "未能获取到天气数据", Toast.LENGTH_SHORT).show());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(SearchForCitysActivity.this, "网络请求失败：" + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
     }
 }
