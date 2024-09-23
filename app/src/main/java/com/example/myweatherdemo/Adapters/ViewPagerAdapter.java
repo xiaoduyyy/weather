@@ -57,4 +57,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         notifyDataSetChanged();
         return weatherList;
     }
+
+
 }

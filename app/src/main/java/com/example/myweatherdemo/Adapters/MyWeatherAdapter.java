@@ -39,8 +39,9 @@ public class MyWeatherAdapter extends RecyclerView.Adapter<MyWeatherAdapter.MyVi
         holder.weatherTemperature.setText(dayWeather.getTem2() + "°" + "~" + dayWeather.getTem1() + "°");
     }
 
+    //更新天气小图标
     private void WeatherIconSet(ImageView imageView, String weather) {
-        switch(weather) {
+        switch (weather) {
             case "晴":
                 imageView.setImageResource(R.drawable.weather_qing);
                 break;
@@ -48,9 +49,16 @@ public class MyWeatherAdapter extends RecyclerView.Adapter<MyWeatherAdapter.MyVi
                 imageView.setImageResource(R.drawable.weather_yin);
                 break;
             case "雨":
+            case "小雨":
+            case "中雨":
+            case "大雨":
+            case "暴雨":
                 imageView.setImageResource(R.drawable.xiaoyu);
                 break;
             case "雪":
+            case "小雪":
+            case "中雪":
+            case "大雪":
                 imageView.setImageResource(R.drawable.xiaoxue);
                 break;
             case "多云":
@@ -64,7 +72,6 @@ public class MyWeatherAdapter extends RecyclerView.Adapter<MyWeatherAdapter.MyVi
                 break;
         }
     }
-
     @Override
     public int getItemCount() {
         return dayWeatherBeans == null ? 0 : dayWeatherBeans.size();
@@ -84,4 +91,6 @@ public class MyWeatherAdapter extends RecyclerView.Adapter<MyWeatherAdapter.MyVi
             weatherImage = itemView.findViewById(R.id.weather_image);
         }
     }
+
+
 }

@@ -10,39 +10,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-// "day":"15日（星期三）",
-//         "date":"2020-07-15",
-//         "week":"星期三",
-//         "wea":"阴", #实时天气情况
-//            "wea_img":"yin", #天气情况对应图标
-//            "wea_day":"阵雨", #白天天气情况
-//            "wea_day_img":"lei",
-//                    "wea_night":"阵雨", #夜间天气情况
-//            "wea_night_img":"lei",
-//                    "tem":"25", #当前温度
-//            "tem1":"29", #高温
-//            "tem2":"23", #低温
-//            "humidity":"97%", #湿度
-//            "visibility":"14.22km", #能见度
-//            "pressure":"961", #气压
-//            "win":[
-//                    "无持续风向", #白天风向
-//                "无持续风向"  #夜间风向
-//            ],
-//                    "win_speed":"<3级", #风速等级
-//            "win_meter":"小于12km/h", #风速
-//            "sunrise":"06:09", #日出时间
-//            "sunset":"20:01",  #日落时间
-//            "air":"14", #空气质量
-//            "air_level":"优",
-//                    "air_tips":"空气很好，可以外出活动，呼吸新鲜空气，拥抱大自然！",
-//                    "alarm":{ #预警信息
-//                "alarm_type":"暴雨", #预警类型
-//                "alarm_level":"橙色", #预警等级
-//                "alarm_content":"内江市气象台7月15日5时23分发布第16号暴雨橙色预警信号:
-//预计我市市中区部分地方3小时降雨量将达50毫米以上，并伴有雷电和阵性大风，请加强防范强降水、雷电和大风等带来的危害。
-//        （预警信息来源：国家预警信息发布中心）" #预警详情描述
-//        },
+
 public class DayWeatherBean implements Serializable {
 
     @SerializedName("day")

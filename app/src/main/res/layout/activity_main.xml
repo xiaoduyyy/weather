@@ -58,11 +58,4 @@
             app:elevation="8dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-    <LinearLayout
-        android:layout_width="200dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/white"
-        android:orientation="vertical">
-    </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

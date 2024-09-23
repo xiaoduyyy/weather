@@ -198,8 +198,6 @@ public class SearchForCitysActivity extends AppCompatActivity {
         });
 
         mRecyclerView = findViewById(R.id.citys_item_recyclerview);
-//        searchButton = (Button) findViewById(R.id.search_for_city_button);
-//        searchCityText = findViewById(R.id.searchcity_text);
         searchView = findViewById(R.id.searchView);
 
 
@@ -208,16 +206,6 @@ public class SearchForCitysActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(new CityItemAdapter(weatherList, weatherDao, this));
 
-//        //搜索城市
-//        searchButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent1 = new Intent(SearchForCitysActivity.this, AddCityActivity.class);
-//                intent1.putExtra("CityName", searchCityText.getText().toString());
-//                intent1.putStringArrayListExtra("CityNames", (ArrayList<String>) cityNames);
-//                startActivity(intent1);
-//            }
-//        });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -230,6 +218,9 @@ public class SearchForCitysActivity extends AppCompatActivity {
                 if (newText.isEmpty()) {
                     // 显示 RecyclerView
                     mRecyclerView.setVisibility(View.VISIBLE);
+                } else if (newText.equals("")) {
+                    citys.clear();
+
                 } else {
                     // 隐藏 RecyclerView
                     mRecyclerView.setVisibility(View.GONE);
@@ -240,6 +231,8 @@ public class SearchForCitysActivity extends AppCompatActivity {
         });
 
     }
+
+
     private void fetchCitys(String city) {
         if (city == null || city.trim().isEmpty()) {
             return;  // 不进行网络请求

@@ -295,9 +295,16 @@ public class MainActivityFragment extends Fragment {
                 imageView.setImageResource(R.drawable.weather_yin);
                 break;
             case "雨":
+            case "小雨":
+            case "中雨":
+            case "大雨":
+            case "暴雨":
                 imageView.setImageResource(R.drawable.xiaoyu);
                 break;
             case "雪":
+            case "小雪":
+            case "中雪":
+            case "大雪":
                 imageView.setImageResource(R.drawable.xiaoxue);
                 break;
             case "多云":

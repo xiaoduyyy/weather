@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ import com.example.myweatherdemo.Beans.DayWeatherBean;
 import com.example.myweatherdemo.Beans.OtherTipsBean;
 import com.example.myweatherdemo.Beans.WeatherBean;
 import com.example.myweatherdemo.Fragments.MainActivityFragment;
+import com.example.myweatherdemo.Others.FadePageTransformer;
 import com.example.myweatherdemo.Others.NetUtil;
 import com.example.myweatherdemo.R;
 import com.example.myweatherdemo.Room.WeatherDao;
@@ -173,10 +175,12 @@ public class MainActivity extends AppCompatActivity {
 
         main_viewpager = findViewById(R.id.main_viewpager);
         initViewPager2(main_viewpager);
+        main_viewpager.setPageTransformer(new FadePageTransformer());
+
 
         addButton = findViewById(R.id.add_button_title);
         View rootView = findViewById(android.R.id.content);
-        rootView.setBackgroundResource(R.drawable.sunny_background);
+        rootView.setBackgroundColor(Color.parseColor("#4d85c2"));
         flash_button = (Button) findViewById(R.id.flash_button);
 
         Intent intentGetCity = getIntent();
@@ -219,6 +223,42 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        WeatherDao weatherDao = db.weatherDao();
+        List<WeatherBean> newWeatherBean = new ArrayList<>();
+        CountDownLatch latch = new CountDownLatch(1);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<WeatherDataEntity> entities = weatherDao.getAllWeatherData();
+                for (WeatherDataEntity entity : entities) {
+                    Gson gson = new Gson();
+                    WeatherBean weatherBean = gson.fromJson(entity.weatherJson, WeatherBean.class);
+                    if (weatherBean != null) {
+                        newWeatherBean.add(weatherBean);
+                        // 处理解析后的 weatherBean，比如更新 UI 或保存到列表
+                        Log.d("WeatherData", "城市天气数据: " + weatherBean.toString());
+                    } else {
+                        Log.e("WeatherData", "解析后的 WeatherBean 为空，检查数据格式或内容。");
+                    }
+                }
+                latch.countDown();
+            }
+        }).start();
+        Log.d(TAG, "initViewPager2: " + weatherBeanList);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        ViewPagerAdapter adapter = (ViewPagerAdapter) main_viewpager.getAdapter();
+        weatherBeanList = adapter.updateData(newWeatherBean);
+
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -240,29 +280,57 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // 设置定位监听
+
         mLocationClient.setLocationListener(new AMapLocationListener() {
             @Override
             public void onLocationChanged(AMapLocation amapLocation) {
                 if (amapLocation != null) {
                     if (amapLocation.getErrorCode() == 0) {
-                        // 定位成功
-                        String city = amapLocation.getCity();  // 获取城市
+                        String city = amapLocation.getCity(); // 获取城市
                         Log.d(TAG, "定位成功，当前城市：" + city);
-                        // 使用城市名请求天气数据
                         if (city != null) {
-                            Toast.makeText(MainActivity.this, "定位成功!", Toast.LENGTH_SHORT).show();
-                            fetchWeatherDataForCity(city);
+                            checkCityExistsAndNavigate(city);
+                            Toast.makeText(MainActivity.this, "定位添加成功！！", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(MainActivity.this, "无法获取城市信息", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        // 定位失败
                         Log.e(TAG, "定位失败, 错误码：" + amapLocation.getErrorCode() + ", 错误信息：" + amapLocation.getErrorInfo());
                         Toast.makeText(MainActivity.this, "定位失败: " + amapLocation.getErrorInfo(), Toast.LENGTH_SHORT).show();
                     }
                 }
             }
+
+            private void checkCityExistsAndNavigate(String cityName) {
+                new Thread(() -> {
+                    WeatherDataEntity entity = db.weatherDao().findCityByName(cityName); // 查询城市
+                    if (entity != null) {
+                        runOnUiThread(() -> {
+                            // 获取当前 Fragment 的位置（索引）
+                            int index = getCityIndex(cityName);
+                            if (index != -1) {
+                                main_viewpager.setCurrentItem(index); // 跳转到该城市的 Fragment
+                            } else {
+                                Toast.makeText(MainActivity.this, "城市不在列表中", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        // 如果城市不存在，获取天气数据并添加
+                        fetchWeatherDataForCity(cityName);
+                    }
+                }).start();
+            }
+            private int getCityIndex(String cityName) {
+                for (int i = 0; i < weatherBeanList.size(); i++) {
+                    if (weatherBeanList.get(i).getCity().equals(cityName)) {
+                        return i; // 找到城市对应的索引
+                    }
+                }
+                return -1; // 未找到
+            }
+
         });
+
 
         // 设置定位参数
         AMapLocationClientOption option = new AMapLocationClientOption();
@@ -315,46 +383,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchWeatherDataForCity(String cityName) {
         new Thread(() -> {
-            // 查询 weatherBeanList 中是否存在该城市
-            boolean cityExists = false;
-            WeatherBean bean1 = null;
-            for (WeatherBean bean : weatherBeanList) {
-                if (bean.getCity().equals(cityName)) {
-                    cityExists = true;
-                    bean1 = bean;
-                    break;
+            // 如果城市不存在，获取天气数据
+            try {
+                String weatherOfCity = NetUtil.getWeatherOfCity(cityName);
+                if (weatherOfCity != null) {
+                    Message message = Message.obtain();
+                    message.what = 0;
+                    message.obj = weatherOfCity;
+                    mHandler.sendMessage(message);
+                } else {
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "未能获取到天气数据", Toast.LENGTH_SHORT).show());
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "网络请求失败：" + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
 
-            if (cityExists) {
-                // 如果城市存在，直接跳转到对应的界面
-                WeatherBean finalBean = bean1;
-                runOnUiThread(() -> {
-                    int position = weatherBeanList.indexOf(finalBean);
-                    if (position != -1) {
-                        main_viewpager.setCurrentItem(position, true);
-                        Log.d(TAG, "跳转到已存在城市位置: " + position);
-                    } else {
-                        Log.e(TAG, "fetchWeatherDataForCity: 无法找到已存在的城市");
-                    }
-                });
-            } else {
-                // 如果城市不存在，获取天气数据
-                try {
-                    String weatherOfCity = NetUtil.getWeatherOfCity(cityName);
-                    if (weatherOfCity != null) {
-                        Message message = Message.obtain();
-                        message.what = 0;
-                        message.obj = weatherOfCity;
-                        mHandler.sendMessage(message);
-                    } else {
-                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "未能获取到天气数据", Toast.LENGTH_SHORT).show());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "网络请求失败：" + e.getMessage(), Toast.LENGTH_SHORT).show());
-                }
-            }
         }).start();
     }
 
@@ -371,8 +415,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public WeatherBean parseTOGson(String json) {
+        CountDownLatch latch = new CountDownLatch(1);
         Gson gson = new Gson();
         WeatherBean weatherBean = gson.fromJson(json, WeatherBean.class);
+        latch.countDown();
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return weatherBean;
     }
 
@@ -389,12 +440,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        db.weatherDao().clearAllWeatherData();
-                    }
-                }).start();
+                // 清空数据库
+                db.weatherDao().clearAllWeatherData();
+
+                // 清空 weatherBeanList 以避免重复
+                weatherBeanList.clear();
 
                 // 按城市名称重新获取数据
                 for (String city : cityNames) {

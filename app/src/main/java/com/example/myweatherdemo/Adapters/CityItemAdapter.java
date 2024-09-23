@@ -2,6 +2,7 @@ package com.example.myweatherdemo.Adapters;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myweatherdemo.Beans.DayWeatherBean;
@@ -43,6 +45,8 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
         this.context = context;
     }
 
+
+
     @NonNull
     @Override
     public CityItemAdapter.CityItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -61,6 +65,13 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
         holder.temperature.setText(todayWeather.getTem2() + "°" + "/" + todayWeather.getTem1() + "°");
         holder.currentTemperature.setText(todayWeather.getTem() + "°");
 
+        String weather = todayWeather.getWea();
+        if (weather.equals("晴") || weather.equals("多云")) {
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#93b5cf"));
+        } else {
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#502b333e"));
+        }
+
         // 为 itemView 设置长按删除事件
         holder.itemView.setOnLongClickListener(v -> {
             showDeleteConfirmationDialog(position);  // 调用删除方法
@@ -76,9 +87,12 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
     public class CityItemViewHolder extends RecyclerView.ViewHolder {
 
         TextView location, weather, temperature, currentTemperature;
+        CardView cardView;
+
 
         public CityItemViewHolder(@NonNull View itemView) {
             super(itemView);
+            cardView = itemView.findViewById(R.id.alarm_card_text);
             location = itemView.findViewById(R.id.card_location_item);
             weather = itemView.findViewById(R.id.card_weather_item);
             temperature = itemView.findViewById(R.id.card_temperature_highandlow_item);
@@ -89,7 +103,7 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
     private void showDeleteConfirmationDialog(int position) {
         new AlertDialog.Builder(context)
                 .setTitle("确认删除")
-                .setMessage("您确定要删除这个项目吗？")
+                .setMessage("您确定要删除这个城市吗？")
                 .setPositiveButton("确定", (dialog, which) -> {
                     removeItem(position);
                 })
@@ -104,7 +118,6 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
             // 在数据库中删除该条记录
             new Thread(() -> {
                 weatherDao.deleteWeatherDataByCityId(weatherBean.getCity()); // 根据城市 ID 删除
-
                 // 使用 Handler 更新 UI
                 new Handler(Looper.getMainLooper()).post(() -> {
                     // 从列表中删除数据并通知适配器更新视图
