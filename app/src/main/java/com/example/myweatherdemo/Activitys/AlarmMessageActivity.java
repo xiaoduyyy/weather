@@ -22,6 +22,7 @@ public class AlarmMessageActivity extends AppCompatActivity {
 
     private TextView alarmTitleText, alarmDetailsText;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

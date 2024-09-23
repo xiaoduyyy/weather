@@ -1,7 +1,9 @@
 package com.example.myweatherdemo.Activitys;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -21,6 +23,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -30,6 +34,10 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.example.myweatherdemo.Adapters.ViewPagerAdapter;
 import com.example.myweatherdemo.Beans.AlarmDetailsBean;
 import com.example.myweatherdemo.Beans.DayWeatherBean;
@@ -42,6 +50,7 @@ import com.example.myweatherdemo.Room.WeatherDao;
 import com.example.myweatherdemo.Room.WeatherDataEntity;
 import com.example.myweatherdemo.Room.WeatherDatabase;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
@@ -72,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
     private WeatherDatabase db;
 
     private Button flash_button;
+
+    public AMapLocationClient mLocationClient = null;
+
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -148,6 +160,17 @@ public class MainActivity extends AppCompatActivity {
         db = Room.databaseBuilder(this,
                 WeatherDatabase.class, "weather-database").build();
 
+
+        AMapLocationClient.updatePrivacyShow(this,true,true);
+        AMapLocationClient.updatePrivacyAgree(this,true);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
+
+
+        
+
         main_viewpager = findViewById(R.id.main_viewpager);
         initViewPager2(main_viewpager);
 
@@ -185,6 +208,70 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 初始化高德定位
+                initLocation();
+            }
+        });
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 用户授权
+                initLocation(); // 重新初始化定位
+            } else {
+                Toast.makeText(this, "定位权限被拒绝", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void initLocation() {
+        try {
+            mLocationClient = new AMapLocationClient(getApplicationContext());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // 设置定位监听
+        mLocationClient.setLocationListener(new AMapLocationListener() {
+            @Override
+            public void onLocationChanged(AMapLocation amapLocation) {
+                if (amapLocation != null) {
+                    if (amapLocation.getErrorCode() == 0) {
+                        // 定位成功
+                        String city = amapLocation.getCity();  // 获取城市
+                        Log.d(TAG, "定位成功，当前城市：" + city);
+                        // 使用城市名请求天气数据
+                        if (city != null) {
+                            Toast.makeText(MainActivity.this, "定位成功!", Toast.LENGTH_SHORT).show();
+                            fetchWeatherDataForCity(city);
+                        } else {
+                            Toast.makeText(MainActivity.this, "无法获取城市信息", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // 定位失败
+                        Log.e(TAG, "定位失败, 错误码：" + amapLocation.getErrorCode() + ", 错误信息：" + amapLocation.getErrorInfo());
+                        Toast.makeText(MainActivity.this, "定位失败: " + amapLocation.getErrorInfo(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        // 设置定位参数
+        AMapLocationClientOption option = new AMapLocationClientOption();
+        option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy); // 高精度定位
+        option.setOnceLocation(true); // 只定位一次
+        option.setNeedAddress(true); // 需要地址信息
+
+        mLocationClient.setLocationOption(option);
+        mLocationClient.startLocation(); // 开始定位
     }
 
     //加载viewpager2
@@ -228,22 +315,52 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchWeatherDataForCity(String cityName) {
         new Thread(() -> {
-            try {
-                String weatherOfCity = NetUtil.getWeatherOfCity(cityName);
-                if (weatherOfCity != null) {
-                    Message message = Message.obtain();
-                    message.what = 0;
-                    message.obj = weatherOfCity;
-                    mHandler.sendMessage(message);
-                } else {
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "未能获取到天气数据", Toast.LENGTH_SHORT).show());
+            // 查询 weatherBeanList 中是否存在该城市
+            boolean cityExists = false;
+            WeatherBean bean1 = null;
+            for (WeatherBean bean : weatherBeanList) {
+                if (bean.getCity().equals(cityName)) {
+                    cityExists = true;
+                    bean1 = bean;
+                    break;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(MainActivity.this, "网络请求失败：" + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+
+            if (cityExists) {
+                // 如果城市存在，直接跳转到对应的界面
+                WeatherBean finalBean = bean1;
+                runOnUiThread(() -> {
+                    int position = weatherBeanList.indexOf(finalBean);
+                    if (position != -1) {
+                        main_viewpager.setCurrentItem(position, true);
+                        Log.d(TAG, "跳转到已存在城市位置: " + position);
+                    } else {
+                        Log.e(TAG, "fetchWeatherDataForCity: 无法找到已存在的城市");
+                    }
+                });
+            } else {
+                // 如果城市不存在，获取天气数据
+                try {
+                    String weatherOfCity = NetUtil.getWeatherOfCity(cityName);
+                    if (weatherOfCity != null) {
+                        Message message = Message.obtain();
+                        message.what = 0;
+                        message.obj = weatherOfCity;
+                        mHandler.sendMessage(message);
+                    } else {
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "未能获取到天气数据", Toast.LENGTH_SHORT).show());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "网络请求失败：" + e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
             }
         }).start();
     }
+
+
+
+
 
 
     //网络是否连接

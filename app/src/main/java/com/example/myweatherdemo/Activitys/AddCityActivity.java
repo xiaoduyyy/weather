@@ -37,9 +37,11 @@ public class AddCityActivity extends AppCompatActivity {
 
     private TextView cityNameTextView, addCityTextView;
 
-    private Button addCityButoon;
+    private Button addCityButoon, backButton;
 
     private int isLive = 0;
+    private View titleBarInclude;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,7 @@ public class AddCityActivity extends AppCompatActivity {
         cityNameTextView = findViewById(R.id.addcity_cityname_textview);
         addCityButoon = (Button) findViewById(R.id.addcity_commit_button);
         addCityTextView = findViewById(R.id.addcity_add_or_go_textview);
+
 
         Intent intent = getIntent();
         String cityName = intent.getStringExtra("CityName");
@@ -79,6 +82,16 @@ public class AddCityActivity extends AppCompatActivity {
                 }
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+            }
+        });
+
+        //返回
+        titleBarInclude = findViewById(R.id.title_bar_include);
+        backButton = titleBarInclude.findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }

@@ -27,4 +27,8 @@ public interface WeatherDao {
     // 根据 cityId 删除特定数据
     @Query("DELETE FROM weather_data WHERE city_id = :cityId")
     void deleteWeatherDataByCityId(String cityId);
+
+    // 根据城市名称查询
+    @Query("SELECT * FROM weather_data WHERE city_id = :cityName LIMIT 1")
+    WeatherDataEntity findCityByName(String cityName);
 }

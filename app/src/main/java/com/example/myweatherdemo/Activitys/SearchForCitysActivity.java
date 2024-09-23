@@ -256,7 +256,7 @@ public class SearchForCitysActivity extends AppCompatActivity {
                     message.obj = weatherOfCity;
                     mHandler.sendMessage(message);
                 } else {
-                    runOnUiThread(() -> Toast.makeText(SearchForCitysActivity.this, "未能获取到天气数据", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(SearchForCitysActivity.this, "未能获取城市数据", Toast.LENGTH_SHORT).show());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,26 +93,28 @@ public class CityItemAdapter extends RecyclerView.Adapter<CityItemAdapter.CityIt
                 .setPositiveButton("确定", (dialog, which) -> {
                     removeItem(position);
                 })
-                .setNegativeButton("取消", null) // 取消时什么也不做
+                .setNegativeButton("取消", null)
                 .show();
     }
 
     private void removeItem(int position) {
-        WeatherBean weatherBean = weatherList.get(position);
+        if (position >= 0 && position < weatherList.size()) {
+            WeatherBean weatherBean = weatherList.get(position);
 
-        // 在数据库中删除该条记录
-        new Thread(() -> {
-            weatherDao.deleteWeatherDataByCityId(weatherBean.getCity()); // 根据城市 ID 删除
+            // 在数据库中删除该条记录
+            new Thread(() -> {
+                weatherDao.deleteWeatherDataByCityId(weatherBean.getCity()); // 根据城市 ID 删除
 
-            // 使用 Handler 更新 UI
-            new Handler(Looper.getMainLooper()).post(() -> {
-                // 从列表中删除数据并通知适配器更新视图
-                weatherList.remove(position);
-                notifyItemRemoved(position);
-            });
-        }).start();
+                // 使用 Handler 更新 UI
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    // 从列表中删除数据并通知适配器更新视图
+                    weatherList.remove(position);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, weatherList.size()); // 通知剩余项位置更新
+                });
+            }).start();
+        } else {
+            Log.e("CityItemAdapter", "Invalid position: " + position);
+        }
     }
-
-
-
 }
